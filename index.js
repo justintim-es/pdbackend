@@ -22,10 +22,6 @@ if(!config.get('twilioAuth')) {
     console.error('fatal error twilioAuth');
     process.exit(0);
 }
-if(!config.get('web3Connect')) {
-    conssole.error('fatal error web3Connect');
-    process.exit(0);
-}
 winston.add(new winston.transports.MongoDB({ db: config.get('mongoConnect')}));
 app.use(express.json());
 const mongoose = require('mongoose');
