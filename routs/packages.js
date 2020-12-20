@@ -18,7 +18,7 @@ router.post('/create', auth, asyncMiddle(async (req, res) => {
     const package = req.body.package;
     const discount = req.body.discount;
     const price = package - discount;
-    if(price < 5) return res.status(400).send('Het aankoopbedrag moet minimaal € 5 zijn');
+    if(price < 5) return res.status(400).send('Het aankoopbedrag moet minimaal € 5 zijn, € ' + package + ' - €' + discount + ' = € ' + price);
     await createPackage(package, discount, price, req.user._id);
     return res.send();
 }));
