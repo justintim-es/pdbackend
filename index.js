@@ -33,8 +33,16 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "*");
     next();
 });
+var whitelist = ['https://presale.discount'];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      }
 };
 app.use(cors(corsOptions));
 const shops = require('./routs/shops');
