@@ -1,0 +1,86 @@
+const mongoose = require('mongoose');
+
+const phonenumberConfirmSchema = new mongoose.Schema({
+    phonenumber: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    code: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    isConfirmed: {
+        type: Boolean,
+        required: true,
+    },
+    removeDate: {
+        type: Date,
+        required: true
+    }
+});
+const PhonenumberConfirm = mongoose.model('PhonenumberConfirm', phonenumberConfirmSchema);
+const PhonenumberCustomerConfirm = mongoose.model('PhonenumberCustomerConfirm', phonenumberConfirmSchema);
+
+async function createPhonenumberConfirm(phonenumber, code) {
+    const pn = await PhonenumberConfirm.findOne({ phonenumber: phonenumber });
+    if(pn != null) throw new Error('Telefoonnummer is al bezet of u kunt het over 20 minuten opnieuw proberen');
+    const phonenumberConfirm = new PhonenumberConfirm({
+        phonenumber: phonenumber,
+        code: code,
+        isConfirmed: false,
+        removeDate: new Date(new Date().getTime() + 20*60000)
+    });
+    await phonenumberConfirm.save();
+}
+async function createPhonenumberCustomerConfirm(phonenumber, code) {
+    const phonenumberCustomerConfirm = PhonenumberCustomerConfirm({
+        phonenumber: phonenumber,
+        code: code,
+        isConfirmed: false,
+        removeDate: new Date(new Date().getTime() + 20*60000)
+    });
+    await phonenumberCustomerConfirm.save();
+}
+async function confirmPhonenumber(phonenumber, code) {
+    const phonenumberConfirm = await PhonenumberConfirm.findOne({ phonenumber: phonenumber, code: code });
+    if(phonenumberConfirm == null) throw new Error('Ongeldig telefoonnummer en/of code');
+    await PhonenumberConfirm.updateOne({ phonenumber: phonenumber, code: code }, {
+        $set: {
+            isConfirmed: true
+        }
+    });
+}
+async function confirmCustomerPhonenumber(phonenumber, code) {
+    const phonenumberCustomerConfirm = await PhonenumberCustomerConfirm.findOne({ phonenumber: phonenumber, code: code });
+    if(phonenumberCustomerConfirm == null) throw new Error('Ongeldig telefoonnummer en/of code');
+    await PhonenumberCustomerConfirm.updateOne({ phonenumber: phonenumber, code: code }, {
+        $set: {
+            isConfirmed: true
+        }
+    });
+}
+async function deleteOutDated() {
+    const phonenumberConfirms = await PhonenumberConfirm.find();
+    for(var i = 0; i < phonenumberConfirms.length; i++) {
+        if(new Date(phonenumberConfirms[i].removeDate) < new Date() && !phonenumberConfirms[i].isConfirmed) {
+            await PhonenumberConfirm.deleteOne({ _id: phonenumberConfirms[i]._id });
+        }
+    }
+}
+async function deleteOutDatedCustomer() {
+    const phonenumberCustomerConfirms = await PhonenumberCustomerConfirm.find();
+    for(var i = 0; i < phonenumberCustomerConfirms.length; i++) {
+        if(new Date(phonenumberCustomerConfirms[i].removeDate) < new Date() && !phonenumberCustomerConfirms[i].isConfirmed) {
+            await PhonenumberConfirm.deleteOne({ _id: phonenumberCustomerConfirms[i]._id });
+        }
+    }
+}
+
+module.exports.createPhonenumberConfirm = createPhonenumberConfirm;
+module.exports.createPhonenumberCustomerConfirm = createPhonenumberCustomerConfirm;
+module.exports.confirmPhonenumber = confirmPhonenumber;
+module.exports.confirmCustomerPhonenumber = confirmCustomerPhonenumber;
+module.exports.deleteOutDated = deleteOutDated;
+module.exports.deleteOutDatedCustomer = deleteOutDatedCustomer;
