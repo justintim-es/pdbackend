@@ -17,8 +17,7 @@ router.post('/check-email', asyncMiddle(async (req, res) => {
     axios.post('https://presale.discount/email/confirm', {
         mail: req.body.email.toLowerCase(),
         link: 'https://presale.discount/confirm/' + random
-    })
-    return res.send();
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
 }));
 router.post('/check-customer', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -34,8 +33,7 @@ router.post('/check-customer', asyncMiddle(async (req, res) => {
     axios.post('https://presale.discount/email/confirm', {
         mail: req.body.email.toLowerCase(),
         link: 'https://' + req.body.subdomain.toLowerCase() + '.presale.discount/confirm/' + req.body.package + '/' + random
-    })
-    return res.send();
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
 }));
 
 router.post('/confirm-email/:code', asyncMiddle(async (req, res) => {

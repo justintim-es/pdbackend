@@ -16,7 +16,6 @@ router.post('/test', (req, res) => {
     if (result.error) return res.status(400).send(result.error.details[0].message);
     const random = cryptoRandomString({ length: 128 });
     const price = req.body.price;
-    mollieClient.customers_payments.create({})
     mollieClient.payments.create({
         amount: {
             value: price + '.00',
