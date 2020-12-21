@@ -23,6 +23,8 @@ const emailConfirmSchema = new mongoose.Schema({
 const EmailConfirm = mongoose.model('EmailConfirm', emailConfirmSchema);
 const EmailCustomerConfirm = mongoose.model('EmailCustomerConfirm', emailConfirmSchema);
 async function createEmailConfirm(email, code) {
+    const ec = await EmailConfirm.findOne({ email: email });
+    if(ec != null) throw new Error("E-Mail voor deze winkel is al bezet");
     const emailConfirm = new EmailConfirm({
         email: email.toLowerCase(),
         code: code,
@@ -32,6 +34,8 @@ async function createEmailConfirm(email, code) {
     await emailConfirm.save();
 }
 async function createEmailCustomerConfirm(email, code) {
+    const ecc = await EmailCustomerConfirm.findOne({ email: email });
+    if(ecc != null) throw new Error("Email voor deze klant is al bezet");
     const emailCustomerConfirm = new EmailCustomerConfirm({
         email: email.toLowerCase(),
         code: code,
