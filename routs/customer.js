@@ -118,8 +118,9 @@ router.post('/pay-login', asyncMiddle(async (req, res) => {
 router.post('/forgot', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
         email: Joi.string().required(),
-        package: Joi.string().required(),
+        packagePayment: Joi.string().required(),
         subdomain: Joi.string().required(),
+        isPackage: Joi.boolean().required()
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const email = req.body.email.toLowerCase().trim();
@@ -129,7 +130,7 @@ router.post('/forgot', asyncMiddle(async (req, res) => {
     await createCforgot(random, customer._id);
     axios.post('https://presale.discount/email/reset', {
         mail: email,
-        link: 'https://' + req.body.subdomain + '.presale.discount/reset/' + req.body.package + '/' + random
+        link: 'https://' + req.body.subdomain + '.presale.discount/reset/' + req.body.packagePayment + '/' + random + '/' + req.body.isPackage
     })
     return res.send();
 }));
