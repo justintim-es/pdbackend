@@ -33,7 +33,11 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "*");
     next();
 });
-var whitelist = ['https://presale.discount'];
+var whitelist = [
+    'https://presale.discount', 
+    'https://mollie.presale.discount',
+    'https://receipts.presale.discount'
+];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
     origin: function (origin, callback) {
@@ -83,8 +87,6 @@ app.use('/api/receipts', receipts);
 app.use('/api/mollie-keys', mollieKeys);
 app.use(error); 
 console.log('token', jwt.sign({ admin: true }, config.get('jwtPrivateKey')));
-console.log('something');
-console.log('branchtest');
 
 app.listen(5555, () => console.log('listening'));
 
