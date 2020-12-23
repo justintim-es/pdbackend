@@ -48,7 +48,7 @@ const corsOptions = {
         }
       }
 };
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 const shops = require('./routs/shops');
 const mollie = require('./routs/mollie');
 const email = require('./routs/email');
@@ -67,6 +67,7 @@ const paforgot = require('./routs/paforgot');
 const pcforgot = require('./routs/pcforgot');
 const receipts = require('./routs/receipts');
 const mollieKeys = require('./routs/mollie-keys');
+const adyen = require('./routs/adyen');
 app.use('/api/shops', shops);
 app.use('/api/mollie', mollie);
 app.use('/api/email', email);
@@ -85,6 +86,7 @@ app.use('/api/paforgot', paforgot);
 app.use('/api/pcforgot', pcforgot);
 app.use('/api/receipts', receipts);
 app.use('/api/mollie-keys', mollieKeys);
+app.use('/api/adyen', adyen);
 app.use(error); 
 console.log('token', jwt.sign({ admin: true }, config.get('jwtPrivateKey')));
 

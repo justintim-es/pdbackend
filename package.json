@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@adyen/api-library": "^6.0.3",
     "@mollie/api-client": "^3.3.0",
     "axios": "^0.21.0",
     "bcrypt": "^5.0.0",
