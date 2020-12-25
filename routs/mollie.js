@@ -23,7 +23,7 @@ router.post('/test', (req, res) => {
         },
         description: 'test payment',
         locale: 'nl_NL',
-        redirectUrl: 'https://presale.discount/test/pay-complete/' + random,
+        redirectUrl: 'https://localhost:5001/test/pay-complete/' + random,
     }).then(async payment => {
         await createTest(payment.id, random, price, req.body.package);
         return res.send(payment.getCheckoutUrl());

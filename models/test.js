@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 // undecentralized.transaction.one
 const testSchema = new mongoose.Schema({
-    paymentId: {
+    paymentData: {
         type: String,
         required: true,
         unique: true
@@ -19,15 +19,20 @@ const testSchema = new mongoose.Schema({
     package: {
         type: Number,
         required: true
+    },
+    reference: {
+        type: String,
+        required: true
     }
 });
 const Test = mongoose.model('Test', testSchema);
-async function createTest(paymentId, random, amount, package) {
+async function createTest(paymentData, random, amount, package, reference) {
     const test = new Test({
-        paymentId: paymentId,
+        paymentData : paymentData,
         random: random,
         amount: amount,
-        package: package
+        package: package,
+        reference: reference
     });
     await test.save();
 }

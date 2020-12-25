@@ -25,6 +25,26 @@ const { createAforgot, getAforgot, useAforgot } = require('../models/aforgot');
 const { getPaforgot, usePaforgot } = require('../models/paforgot');
 const cryptoRandomString = require('crypto-random-string');
 const axios = require('axios');
+const {Client, Platforms } = require('@adyen/api-library');
+const client = new Client({
+    config,
+    httpClient: {
+      async request(endpoint, json, config, isApiKeyRequired, requestOptions) {
+          const response = await axios({
+              method: 'POST',
+              url: endpoint,
+              data: JSON.parse(json),
+              headers: {
+                  "X-API-Key": header,
+                  "Content-type": "application/json"
+              },
+          })
+          return response.data;
+      }
+    }
+});
+client.setEnvironment("TEST");
+const platforms = new Platforms(client);
 router.post('/create', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
         phonenumber: Joi.number().required(),
@@ -45,6 +65,10 @@ router.post('/create', asyncMiddle(async (req, res) => {
     const email = await getEmailFromCode(req.body.emailCode);
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    const accountHolderCode = cryptoRandomString({ length: 50 })
+    platforms.Account.createAccountHolder({
+
+    })
     const account = await createAccount(
         email, 
         req.body.phonenumber,

@@ -3,5 +3,7 @@
     "mongoConnect": "presalemongo_mongoConnect",
     "twilioAccount": "presalemongo_twilioAccount",
     "twilioAuth": "presalemongo_twilioAuth",
-    "web3Connect": "presalemongo_web3Connect"
+    "web3Connect": "presalemongo_web3Connect",
+    "adyenApiKey": "presalemongo_adyenApiKey",
+    "adyenMerchant": "presalemongo_adyenMerchant"
 }

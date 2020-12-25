@@ -22,6 +22,14 @@ if(!config.get('twilioAuth')) {
     console.error('fatal error twilioAuth');
     process.exit(0);
 }
+if(!config.get('adyenApiKey')) {
+    console.error('fatal error adyenApiKey');
+    process.exit(0);
+}
+if(!config.get('adyenMerchant')) {
+    console.error('fatal error adyenMerchant');
+    process.exit(0);
+}
 winston.add(new winston.transports.MongoDB({ db: config.get('mongoConnect')}));
 app.use(express.json());
 const mongoose = require('mongoose');
