@@ -50,7 +50,7 @@ router.post('/test', asyncMiddle(async (req, res) => {
             type: "ideal",
             issuer: "1121"
         },
-        returnUrl: "https://localhost:5001/test/pay-complete/" + random,
+        returnUrl: "https://presale.discount/test/pay-complete/" + random,
         merchantAccount: "PresaleDiscountECOM",
     }).then(async rs => {
         await createTest(rs.paymentData, random, price, package, reference);
