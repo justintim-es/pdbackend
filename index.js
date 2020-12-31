@@ -22,12 +22,12 @@ if(!config.get('twilioAuth')) {
     console.error('fatal error twilioAuth');
     process.exit(0);
 }
-if(!config.get('adyenApiKey')) {
-    console.error('fatal error adyenApiKey');
+if(!config.get('etherscanApiKey')) {
+    console.error('fatal error etherscanApiKey');
     process.exit(0);
 }
-if(!config.get('adyenMerchant')) {
-    console.error('fatal error adyenMerchant');
+if(!config.get('web3Connect')) {
+    console.error('fatal error web3Connect');
     process.exit(0);
 }
 winston.add(new winston.transports.MongoDB({ db: config.get('mongoConnect')}));
@@ -48,15 +48,15 @@ var whitelist = [
 ];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-          callback(null, true)
-        } else {
-          callback(new Error('Not allowed by CORS'))
-        }
-      }
+    // origin: function (origin, callback) {
+    //     if (whitelist.indexOf(origin) !== -1) {
+    //       callback(null, true)
+    //     } else {
+    //       callback(new Error('Not allowed by CORS'))
+    //     }
+    //   }
 };
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 const shops = require('./routs/shops');
 const mollie = require('./routs/mollie');
 const email = require('./routs/email');
@@ -76,6 +76,7 @@ const pcforgot = require('./routs/pcforgot');
 const receipts = require('./routs/receipts');
 const mollieKeys = require('./routs/mollie-keys');
 const adyen = require('./routs/adyen');
+const ethereum = require('./routs/ethereum');
 app.use('/api/shops', shops);
 app.use('/api/mollie', mollie);
 app.use('/api/email', email);
@@ -95,6 +96,7 @@ app.use('/api/pcforgot', pcforgot);
 app.use('/api/receipts', receipts);
 app.use('/api/mollie-keys', mollieKeys);
 app.use('/api/adyen', adyen);
+app.use('/api/ethereum', ethereum);
 app.use(error); 
 console.log('token', jwt.sign({ admin: true }, config.get('jwtPrivateKey')));
 

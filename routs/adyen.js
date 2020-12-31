@@ -6,8 +6,8 @@ const axios = require('axios');
 const url = 'https://checkout-test.adyen.com/v66/payments';
 const cryptoRandomString = require('crypto-random-string');
 const header = "AQEqhmfuXNWTK0Qc+iSAgGErpuiebIJeDpxfVnEFr1+WcQ3xXt1HZSyEWqh9EMFdWw2+5HzctViMSCJMYAc=-+VzlJ0v13KzqwBULqmwo7VZhiNKT3IEb6LETZy8R5Rg=-^]hpEv~WA7>{>uC~";
-const config = require('config');
 const {Config, Client, CheckoutAPI } = require('@adyen/api-library');
+const config = new Config({ apiKey: header, merchantAccount: "PresaleDiscountECOM"});
 const { createTest, getTest } = require('../models/test');
 const _ = require('lodash');
 const client = new Client({

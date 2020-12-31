@@ -3,6 +3,6 @@
     "mongoConnect": "",
     "twilioAccount": "",
     "twilioAuth": "",
-    "adyenApiKey": "",
-    "adyenMerchant": ""
+    "etherscanApiKey": "",
+    "web3Connect": ""
 }

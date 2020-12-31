@@ -13,9 +13,13 @@ const cryptoRandomString = require('crypto-random-string');
 const { createCforgot, getCforgot, useCforgot } = require('../models/cforgot');
 const { getPcforgot, usePcforgot } = require('../models/pcforgot');
 const { getLock, createLock } = require('../models/lock');
-
 const axios = require('axios');
-const { getMollieKey } = require('../models/mollie-key');
+const { dollar } = require('../ethereum/exchangerates');
+const { price } = require('../ethereum/etherscan');
+const { toWei } = require('../ethereum/utils');
+const { createEthereumPayment } = require('../models/ethereum-payment');
+const { createPersonal } = require('../ethereum/personal');
+const _ = require('lodash');
 // todo add token
 router.post('/create', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -23,45 +27,39 @@ router.post('/create', asyncMiddle(async (req, res) => {
         password: Joi.string().required(),
         code: Joi.string().required(),
         package: Joi.string().required(),
-        subdomain: Joi.string().required()
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const email = await getCustomerEmailFromCode(req.body.code);
-    const random = cryptoRandomString({ length: 256 });
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const customer = await createCustomer(email, req.body.phonenumber, hashedPassword);
     const package = await getPackage(req.body.package);
     const account = await findById(package.account);
-    const mollieKey = await getMollieKey(account._id);
-    const mollieClient = createMollieClient({ apiKey: mollieKey.key });
-    mollieClient.payments.create({
-        amount: {
-            value: package.price + '.00',
-            currency: 'EUR'
-        },
-        description: account.tradeName,
-        locale: 'nl_NL',
-        redirectUrl: 'https://' + req.body.subdomain  + '.presale.discount/checkout/' + random,
-        applicationFee: {
-            amount: {
-                currency: 'EUR',
-                value: '0.49'
-            },
-            description: account.tradeName
-        }
-    }).then(async payment => {
-        await createPayment(payment.id, random, req.body.package, customer._id);
-        return res.send(payment.getCheckoutUrl());
-    }).catch(err => res.status(400).send(err))
+    dollar().then(async doschol => {
+        const doschollaschar = doschol.data.rates.USD * package.price;
+        price().then(async prischic => {
+            const eth = doschollaschar / prischic.data.result.ethusd;
+            const cryptoPass = cryptoRandomString({ length: 256 });
+            createPersonal(cryptoPass).then(async address => {
+                const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price, account.subdomain);
+                const token = customer.genereateAuthToken();
+                return res.header('x-auth-token', token).send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei']));
+            }).catch(err => res.status(500).send(err.message));
+        }).catch(err => {
+            console.log(err);
+            return res.status(500).send(err);
+        });
+    }).catch(err => {
+        console.log(err);
+        return res.status(500).send(err);
+    });
 }));
 router.post('/login', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
         email: Joi.string().required(),
         password: Joi.string().required(),
         package: Joi.string().required(),
-        subdomain: Joi.string().required()
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const customer = await getCustomerEmail(req.body.email.toLowerCase().trim());
@@ -70,28 +68,18 @@ router.post('/login', asyncMiddle(async (req, res) => {
     if(!validPasssword) return res.status(400).send('Ongeldig e-mail of wachtwoord');
     const package = await getPackage(req.body.package);
     const account = await findById(package.account);
-    const mollieKey = await getMollieKey(account._id);
-    const mollieClient = createMollieClient({ apiKey: mollieKey.key });
-    const random = cryptoRandomString({ length: 256 });
-    mollieClient.payments.create({
-        amount: {
-            value: package.price + '.00',
-            currency: 'EUR'
-        },
-        locale: 'nl_NL',
-        description: account.tradeName,
-        redirectUrl: 'https://' + req.body.subdomain + '.presale.discount/checkout/' + random,
-        applicationFee: {
-            amount: {
-                currency: 'EUR',
-                value: '0.49'
-            },
-            description: account.tradeName
-        }
-    }).then(async payment => {
-        await createPayment(payment.id, random, req.body.package, customer._id);
-        return res.send(payment.getCheckoutUrl());
-    }).catch(err => res.status(400).send(err))
+    dollar().then(async doschol => {
+        const doschollaschar = doschol.data.rates.USD * package.price;
+        price().then(async prischic => {
+            const eth = prischic.result.ethusd / doschollaschar;
+            const cryptoPass = cryptoRandomString({ length: 256 });
+            createPersonal(cryptoPass).then(async address => {
+                const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price);
+                const token = customer.genereateAuthToken();
+                return res.header('x-auth-token').send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei']));
+            }).catch(err => res.status(500).send(err.message));
+        }).catch(err => res.status(500).send(err.response.data));
+    }).catch(err => res.status(500).send(err.response.data));
 }));
 router.post('/pay-login', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -186,6 +174,6 @@ router.post('/receipts', asyncMiddle(async (req, res) => {
     if(!validPasssword) return res.status(400).send('Ongeldig e-mail of wachtwoord');
     const token = customer.genereateAuthToken();
     return res.header('x-auth-token', token).send();
-}))
+}));
 
 module.exports = router;

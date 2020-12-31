@@ -22,6 +22,7 @@ const emailConfirmSchema = new mongoose.Schema({
 });
 const EmailConfirm = mongoose.model('EmailConfirm', emailConfirmSchema);
 const EmailCustomerConfirm = mongoose.model('EmailCustomerConfirm', emailConfirmSchema);
+const EmailSellerConfirm = mongoose.model('EmailSellerConfirm', emailConfirmSchema);
 async function createEmailConfirm(email, code) {
     const ec = await EmailConfirm.findOne({ email: email });
     if(ec != null) throw new Error("E-Mail voor deze winkel is al bezet");
@@ -44,6 +45,17 @@ async function createEmailCustomerConfirm(email, code) {
     });
     await emailCustomerConfirm.save();
 }
+async function createEmailSellerConfirm(email, code) {
+    const esc = await EmailSellerConfirm.findOne({ email: email });
+    if(esc != null) throw new Error('Email voor deze klant is al bezet');
+    const emailSellerConfirm = new EmailSellerConfirm({
+        email: email,
+        code: code,
+        isConfirmed: false,
+        removeDate: new Date(new Date().getTime() + 20*60000)
+    });
+    await emailSellerConfirm.save();
+}
 async function confirmEmailConfirm(code) {
     const emailConfirm = await EmailConfirm.findOne({ code: code });
     if(emailConfirm == null) throw new Error('Ongeldige code');
@@ -62,6 +74,15 @@ async function confirmEmailCustomerConfirm(code) {
         }
     });
 }
+async function confirmEmailSellerConfirm(code) {
+    const emailSellerConfirm = await EmailSellerConfirm.findOne({ code: code });
+    if(emailSellerConfirm == null) throw new Error('Ongeldige code');
+    await EmailSellerConfirm.updateOne({ code: code }, {
+        $set: {
+            isConfirmed: true
+        }
+    })
+}
 async function deleteOutdated() {
     const emailConfirms = await EmailConfirm.find();
     for (var i = 0; i < emailConfirms.length; i++) {
@@ -78,6 +99,14 @@ async function deleteOutdatedCustomer() {
         }
     }
 }
+async function deleteOutdatedSeller() {
+    const emailSellerConfirms = await EmailSellerConfirm.find();
+    for(var i = 0; i < emailSellerConfirms.length; i++) {
+        if (new Date(emailSellerConfirms[i].removeDate < new Date() && !emailSellerConfirms[i].isConfirmed)) {
+            await EmailSellerConfirm.deleteOne({ _id: emailSellerConfirms[i]._id });
+        }
+    }
+}
 async function getEmailFromCode(code) {
     const emailConfirm = await EmailConfirm.findOne({ code: code });
     return emailConfirm.email;
@@ -88,9 +117,12 @@ async function getCustomerEmailFromCode(code) {
 }
 module.exports.createEmailConfirm = createEmailConfirm;
 module.exports.createEmailCustomerConfirm = createEmailCustomerConfirm;
+module.exports.createEmailSellerConfirm = createEmailSellerConfirm;
 module.exports.confirmEmailConfirm = confirmEmailConfirm;
 module.exports.confirmEmailCustomerConfirm = confirmEmailCustomerConfirm;
+module.exports.confirmEmailSellerConfirm = confirmEmailSellerConfirm;
 module.exports.deleteOutdated = deleteOutdated;
 module.exports.deleteOutdatedCustomer = deleteOutdatedCustomer;
+module.exports.deleteOutdatedSeller = deleteOutdatedSeller;
 module.exports.getEmailFromCode = getEmailFromCode; 
 module.exports.getCustomerEmailFromCode = getCustomerEmailFromCode;

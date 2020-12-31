@@ -34,26 +34,26 @@ const accountSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    kvk: {
-        type: String,
-        required: true
-    },
-    btw: {
-        type: String,
-        required: true
-    },
     subdomain: {
         type: String,
         required: true,
         unique: true
     },
-    isMollie: {
+    ethereumAddress: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    ethereumPassword: {
+        type: String,
+        required: true
+    },
+    isSells: {
         type: Boolean,
         required: true
     },
-    isEthereum: {
-        type: Boolean,
-        required: true
+    sells: {
+        type: mongoose.Schema.Types.ObjectId,
     }
 })
 accountSchema.methods.genereateAuthToken = function() {
@@ -62,7 +62,7 @@ accountSchema.methods.genereateAuthToken = function() {
 }
 const Account = mongoose.model('Account', accountSchema);
 
-async function createAccount(email, phonenumber, password, tradeName, address, houseNumber, postCode, kvk, btw, subdomain) {
+async function createAccount(email, phonenumber, password, tradeName, address, houseNumber, postCode, subdomain, ethereumAddress, ethereumPassword) {
     const account = new Account({
         email: email,
         phonenumber: phonenumber,
@@ -71,11 +71,28 @@ async function createAccount(email, phonenumber, password, tradeName, address, h
         address: address,
         houseNumber: houseNumber,
         postCode: postCode,
-        kvk: kvk,
-        btw: btw,
         subdomain: subdomain,
-        isMollie: false,
-        isEthereum: false,
+        ethereumAddress: ethereumAddress,
+        ethereumPassword: ethereumPassword,
+        isSells: false
+    });
+    await account.save();
+    return account;
+}
+async function createSellsAccount(email, phonenumber, password, tradeName, address, houseNumber, postCode, subdomain, ethereumAddress, ethereumPassword, sells) {
+    const account = new Account({
+        email: email,
+        phonenumber: phonenumber,
+        password: password,
+        tradeName: tradeName,
+        address: address,
+        houseNumber: houseNumber,
+        postCode: postCode,
+        subdomain: subdomain,
+        ethereumAddress: ethereumAddress,
+        ethereumPassword: ethereumPassword,
+        isSells: true,
+        sells: sells
     });
     await account.save();
     return account;
