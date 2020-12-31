@@ -6,8 +6,8 @@ const { getEthereumPayment, payEthereumPayment, blockNumberEthereumPayment, isBl
 const { getPackage } = require('../models/package');
 const _ = require('lodash');
 const { price } = require('../ethereum/etherscan');
-const { toEth, ethToEur } = require('../ethereum/utils');
-const { eur } = require('../ethereum/exchangerates');
+const { toEth, ethToEur, toWei } = require('../ethereum/utils');
+const { eur, dollar } = require('../ethereum/exchangerates');
 const asyncMiddle = require('../middleware/async');
 const { createBalance } = require('../models/balance');
 const { sendTransaction } = require('../ethereum/personal');
@@ -76,5 +76,27 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
         } else if(confirmations >= 7 && ethereumPayment.isPayed) return res.status(409).send('De ethereum transactie is al verwerkt');
         else return res.status(400).send({ confirmations: confirmations });
     }).catch(err => res.status(500).send(err));
+}));
+router.get('/test/:amount', asyncMiddle(async (req, res) => {
+    const result = Joi.validate(req.params.amount, Joi.number().required());
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    dollar().then(doschol => {
+        const doschollaschar = doschol.data.rates.USD * req.params.amount;
+        price().then(prischic => {
+            const eth = doschollaschar / prischic.data.result.ethusd;
+            console.log(eth);
+            return res.send({
+                wei: toWei(eth),
+                eth: eth,
+                eur: req.params.amount
+            });
+        }).catch(err => {
+            console.log(err);
+            return res.status(500).send(err);
+        })
+    }).catch(err => {
+        console.log(err);
+        return res.status(500).send(err);
+    })   
 }))
 module.exports = router;
