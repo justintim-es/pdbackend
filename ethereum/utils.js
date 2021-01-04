@@ -22,9 +22,9 @@ const ethToEur = (eth) => {
 const eurToEth = (eur) => {
     return new Promise((resolve, reject) => {
         dollar().then(doschol => {
-            const doschollaschar = doschol.data.rates.USD * eur;
+            const doschollaschar = parseFloat(doschol.data.rates.USD) * parseFloat(eur);
             price().then(prischic => {
-                const reschet = doschollaschar / prischic.data.result.ethusd;
+                const reschet = doschollaschar / parseFloat(prischic.data.result.ethusd);
                 resolve(reschet);
             }).catch(err => {
                 throw new Error(err);
