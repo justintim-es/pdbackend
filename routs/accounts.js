@@ -60,7 +60,7 @@ router.post('/create', asyncMiddle(async (req, res) => {
         );
         const token = account.genereateAuthToken();
         await finalizeSubdomain(subdomain);
-        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isMollie']));
+        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain']));
     }).catch(err => res.status(500).send(err.message))
 }));
 
@@ -84,7 +84,7 @@ router.post('/login', asyncMiddle(async (req, res) => {
         return res.status(400).send('Ongeldig e-mail of wachtwoord');
     }
     const token = account.genereateAuthToken()
-    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isMollie', 'subdomain']));
+    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
 }));
 router.post('/forgot', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {

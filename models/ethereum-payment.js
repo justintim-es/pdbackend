@@ -49,7 +49,20 @@ const ethereumPaymentSchema = new mongoose.Schema({
     subdomain: {
         type: String,
         required: true
+    },
+    date: {
+        type: Date,
+        required: true
+    },
+    recievedWei: {
+        type: Number,
+        required: true
+    },
+    recievedMarket: {
+        type: Number,
+        required: true
     }
+    
 });
 const EthereumPayment = mongoose.model('EthereumPayment', ethereumPaymentSchema);
 
@@ -66,7 +79,10 @@ async function createEthereumPayment(account, package, customer, address, passwo
         isPayed: false,
         isBlockNumber: false,
         blockNumber: 0,
-        subdomain: subdomain
+        subdomain: subdomain,
+        date: new Date(),
+        recievedWei: 0,
+        recievedMarket: 0
     });
     await ethereumPayment.save();
     return ethereumPayment;
@@ -91,12 +107,20 @@ async function isBlockNumberEthereumPaymentTrue(id) {
         }
     })
 }
-async function payEthereumPayment(id) {
+async function payEthereumPayment(id, recievedWei, recievedMarket) {
     await EthereumPayment.updateOne({ _id: id }, {
         $set: {
-            isPayed: true
+            isPayed: true,
+            recievedWei: recievedWei,
+            recievedMarket: recievedMarket
         }
     })
+}
+async function getEthereumPayments(package) {
+    return await EthereumPayment.find({ package: package, isPayed: true })
+}
+async function getEthereumPaymentsAccount(account) {
+    return await EthereumPayment.find({ account: account, isPayed: true });
 }
 module.exports.createEthereumPayment = createEthereumPayment;
 module.exports.getEthereumPayment = getEthereumPayment;
@@ -104,3 +128,5 @@ module.exports.payEthereumPayment = payEthereumPayment;
 module.exports.blockNumberEthereumPayment = blockNumberEthereumPayment;
 module.exports.isBlockNumberEthereumPaymentTrue = isBlockNumberEthereumPaymentTrue;
 module.exports.getEthereumPaymentById = getEthereumPaymentById;
+module.exports.getEthereumPayments = getEthereumPayments;
+module.exports.getEthereumPaymentsAccount = getEthereumPaymentsAccount;

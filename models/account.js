@@ -48,6 +48,10 @@ const accountSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isSubdomain: {
+        type: Boolean,
+        required: true
+    },
     isSells: {
         type: Boolean,
         required: true
@@ -74,7 +78,8 @@ async function createAccount(email, phonenumber, password, tradeName, address, h
         subdomain: subdomain,
         ethereumAddress: ethereumAddress,
         ethereumPassword: ethereumPassword,
-        isSells: false
+        isSells: false,
+        isSubdomain: false
     });
     await account.save();
     return account;

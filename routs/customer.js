@@ -71,12 +71,12 @@ router.post('/login', asyncMiddle(async (req, res) => {
     dollar().then(async doschol => {
         const doschollaschar = doschol.data.rates.USD * package.price;
         price().then(async prischic => {
-            const eth = prischic.result.ethusd / doschollaschar;
+            const eth =  doschollaschar / prischic.data.result.ethusd;
             const cryptoPass = cryptoRandomString({ length: 256 });
             createPersonal(cryptoPass).then(async address => {
-                const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price);
+                const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price, account.subdomain);
                 const token = customer.genereateAuthToken();
-                return res.header('x-auth-token').send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei']));
+                return res.header('x-auth-token', token).send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei']));
             }).catch(err => res.status(500).send(err.message));
         }).catch(err => res.status(500).send(err.response.data));
     }).catch(err => res.status(500).send(err.response.data));
