@@ -46,20 +46,27 @@ var whitelist = [
     'https://mollie.presale.discount',
     'https://receipts.presale.discount'
 ];
-var corsOptionsDelegate = function (req, callback) {
-    var corsOptions;
-    if (whitelist.indexOf(req.header('Origin')) !== -1) {
-      corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-    } else {
-      corsOptions = { origin: false } // disable CORS for this request
-    }
-    callback(null, corsOptions) // callback expects two parameters: error and options
-}
-const corsOptions = {
-    exposedHeaders: 'x-auth-token',
-    origin: corsOptionsDelegate
-};
-app.use(cors(corsOptions));
+// var corsOptionsDelegate = function (req, callback) {
+//     var corsOptions;
+//     if (whitelist.indexOf(req.header('Origin')) !== -1) {
+//       corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+//     } else {
+//       corsOptions = { origin: false } // disable CORS for this request
+//     }
+//     callback(null, corsOptions) // callback expects two parameters: error and options
+// }
+// const corsOptions = {
+//     exposedHeaders: 'x-auth-token',
+// };
+// app.use(cors(corsOptions));
+var cors_proxy = require('cors-anywhere');
+cors_proxy.createServer({
+    originWhitelist: whitelist, // Allow all origins
+    requireHeader: ['origin', 'x-requested-with'],
+    removeHeaders: ['cookie', 'cookie2']
+}).listen(port, host, function() {
+    console.log('Running CORS Anywhere on ' + host + ':' + port);
+});
 const shops = require('./routs/shops');
 const mollie = require('./routs/mollie');
 const email = require('./routs/email');
