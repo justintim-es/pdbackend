@@ -3,7 +3,9 @@ const url = 'https://api.etherscan.io/api?module=stats&action=ethprice&apikey=' 
 const axios = require('axios');
 const price = () => {
     return new Promise((resolve, reject) => {
-        axios.get(url).then(resolve).catch(reject)
+        axios.get(url).then(resolve).catch(err => {
+            throw new Error(err);
+        })
     })
 }
 module.exports.price = price;

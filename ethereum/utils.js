@@ -24,7 +24,8 @@ const eurToEth = (eur) => {
         dollar().then(doschol => {
             const doschollaschar = doschol.data.rates.USD * eur;
             price().then(prischic => {
-                resolve(doschollaschar / prischic.data.result.ethusd)
+                const reschet = doschollaschar / prischic.data.result.ethusd;
+                resolve(reschet);
             }).catch(err => {
                 throw new Error(err);
             })
