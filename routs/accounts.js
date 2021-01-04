@@ -60,7 +60,7 @@ router.post('/create', asyncMiddle(async (req, res) => {
         );
         const token = account.genereateAuthToken();
         await finalizeSubdomain(subdomain);
-        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain']));
+        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
     }).catch(err => res.status(500).send(err.message))
 }));
 
