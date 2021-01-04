@@ -86,7 +86,9 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                 gasPrice().then(gp => {
                     price().then(prischic => {
                         const prischicesche = prischic.data.result.ethusd;
-                        eurToEth(1.49).then(eschet => {
+                        dollar().then(doschol => {
+                            const doschollaschar = doschol.data.rates.USD * 1.49;
+                            const eschet = doschollaschar / prischicesche;
                             const feeWei = toWei(eschet);
                             sendTransaction(ethereumPayment.address, ethereumPayment.password, feeWei, address, gp).then(async feeHash => {
                                 await createEthereumTxFee(ethereumPayment._id, gp, prischicesche, feeHash, feeWei);
@@ -102,7 +104,7 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                             }).catch(err => {
                                 return res.status(500).send(err.message);
                             });
-                        }).catch(err => res.status(500).send());
+                        }).catch(err => res.status(500).send())
                     }).catch(err => res.status(500).send(err));
                 }).catch(err => res.status(500).send(err.message));
             }).catch(err => res.status(500).send(err.message))
