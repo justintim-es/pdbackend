@@ -46,23 +46,17 @@ var whitelist = [
     'https://mollie.presale.discount',
     'https://receipts.presale.discount'
 ];
-const corsOptionsDelegate = (req, callback) => {
-    let corsOptions;
-
-    let isDomainAllowed = whitelist.indexOf(req.header('Origin')) !== -1;
-    let isExtensionAllowed = req.path.endsWith('.jpg');
-
-    if (isDomainAllowed && isExtensionAllowed) {
-        // Enable CORS for this request
-        corsOptions = { origin: true, exposedHeaders: 'x-auth-token' }
-    } else {
-        // Disable CORS for this request
-        corsOptions = { origin: false, exposedHeaders: 'x-auth-token' }
-    }
-    callback(null, corsOptions)
-}
-app.use(cors(corsOptionsDelegate))
-
+const corsOptions = {
+    exposedHeaders: 'x-auth-token',
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      }
+};
+app.use(cors(corsOptions));
 const shops = require('./routs/shops');
 const mollie = require('./routs/mollie');
 const email = require('./routs/email');
