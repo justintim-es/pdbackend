@@ -18,16 +18,22 @@ const { address, txGas } = require('../ethereum/constants');
 // const eschet = 0.5 / 1000;
 // const wei = web3.utils.toWei(eschet.toString());
 // console.log(wei / 21000);
-// web3.eth.personal.unlockAccount('0x4243839d1aafd7cd6391cadfcaa4c5304b83fcd2', 'Floris12!', 1).then(unlock => {
+// web3.eth.personal.unlockAccount('0x50aD80c90a9A0b51dC791Ea49dFA9Ce1b28c7b06', '034af3812eabb8f621ddd97648a8915e3ec0f7e41538415e47ddfef760911873e0e65a5b26a9b2745f3f7edbfb94ec774583db858a6b89699eaa3ababee06333bbe623adec8136c8ec8db57f01bc51e9eff1a07aa39e617f5e0488e1c60cf69eb15c96b29c0153f9229eb71d0b7c921069adc2b883a2b4caef8e26e666ef43d9', 1).then(unlock => {
 //     if(unlock) {
 //         web3.eth.sendTransaction({
-//             from: '0x4243839d1aafd7cd6391cadfcaa4c5304b83fcd2',
-//             to: '0x781332e69301e0abdD2328d3f1DdAdA72F87A189',
-//             value: web3.utils.toWei('1'),
-//             gas: 21000
+//             from: '0x50aD80c90a9A0b51dC791Ea49dFA9Ce1b28c7b06',
+//             to: '0x46dbc88e056eb5c2d859789d98e8ec2948e7f3d5',
+//             value: web3.utils.toHex(819187398233544),
+//             gas: web3.utils.toHex(21000),
+//             gasPrice: web3.utils.toHex(53294960961),
 //         }).on('transactionHash', hash => console.log(hash));
 //     }
 // })
+// web3.eth.getBalance('0x50aD80c90a9A0b51dC791Ea49dFA9Ce1b28c7b06').then(baschal => {
+//     console.log(baschal - 21000 * 53294960961)
+// })
+// web3.eth.getBalance('0x4dD645A3AD216c3cA14D8537Ca995BA138Af0A4b').then(console.log)
+// console.log(5417596222549610 - (21000 * 53294960961))
 // // })
 // web3.eth.getGasPrice().then(gp => {
 //     console.log(gp);
@@ -47,7 +53,7 @@ const { address, txGas } = require('../ethereum/constants');
 // web3.eth.getGasPrice().then(console.log);
 // const eschet = web3.utils.fromWei((9000000000 * 21000).toString());
 // console.log(821.79 * eschet);
-web3.eth.personal.unlockAccount('0x46dbc88e056eb5c2d859789d98e8ec2948e7f3d5', 'Floris12!').then(console.log)
-const eschet =  1 / 893.50;
-const wei = web3.utils.toWei(eschet.toString().substring(0, 20));
-console.log(wei / txGas);
+web3.eth.personal.unlockAccount('0x4dD645A3AD216c3cA14D8537Ca995BA138Af0A4b', 'BloschockChaschain32!').then(console.log)
+// const eschet =  4.5 / 893.50;
+// const wei = web3.utils.toWei(eschet.toString().substring(0, 20));
+// console.log(wei);

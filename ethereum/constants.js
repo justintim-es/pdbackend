@@ -1,2 +1,2 @@
-module.exports.address = '0x46dbc88e056eb5c2d859789d98e8ec2948e7f3d5';
+module.exports.address = '0x4dD645A3AD216c3cA14D8537Ca995BA138Af0A4b';
 module.exports.txGas = 21000;

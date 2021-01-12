@@ -17,11 +17,11 @@ const sendTransaction = (address, password, wei, reciever, gp) => {
             console.log(unlock);
             if(unlock) {
                 web3.eth.sendTransaction({
-                    value: wei,
+                    value: web3.utils.toHex(wei),
                     from: address,
                     to: reciever,
-                    gas: txGas,
-                    gasPrice: gp.toString()
+                    gas: web3.utils.toHex(txGas),
+                    gasPrice: web3.utils.toHex(gp)
                 }).on('transactionHash', resolve).catch(err => {
                     throw new Error(err);
                 })
@@ -38,11 +38,11 @@ const resendTransaction = (address, password, wei, reciever, gp, nonce) => {
             console.log(unlock);
             if(unlock) {
                 web3.eth.sendTransaction({
-                    value: wei,
+                    value: web3.utils.toHex(wei),
                     from: address,
                     to: reciever,
-                    gas: txGas,
-                    gasPrice: gp.toString(),
+                    gas: web3.utils.toHex(txGas),
+                    gasPrice: web3.utils.toHex(gp),
                     nonce: nonce
                 }).on('transactionHash', resolve).catch(err => {
                     throw new Error(err);
