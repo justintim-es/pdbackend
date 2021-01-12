@@ -58,10 +58,12 @@ router.post('/check-seller', asyncMiddle(async (req, res) => {
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const email = req.body.email.toLowerCase().trim();
     const random = cryptoRandomString({ length: 256 });
-    console.log(random);
     await deleteOutdatedSeller();
     await createEmailSellerConfirm(email, random)
-    return res.send();
+    axios.post('https://presale.discount/email/confirm', {
+        mail: req.body.email.toLowerCase(),
+        link: 'https://sell.presale.discount/confirm/' + req.body.package + '/' + random
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
 }));
 
 router.post('/confirm-email/:code', asyncMiddle(async (req, res) => {
