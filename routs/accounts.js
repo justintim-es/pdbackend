@@ -14,7 +14,7 @@ const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
-const { createAccount, findOne, findBySubdomain, updatePassword, getAccounts } = require('../models/account');
+const { createAccount, findOne, createSellsAccount, findBySubdomain, updatePassword, getAccounts, updateTransactionFee, findById, updateIsFiftyFifty, updateIsChargeCustomer } = require('../models/account');
 const { getEmailFromCode } = require('../models/email-confirm');
 const asyncMiddle = require('../middleware/async');
 const _ = require('lodash');
@@ -26,6 +26,8 @@ const { getPaforgot, usePaforgot } = require('../models/paforgot');
 const cryptoRandomString = require('crypto-random-string');
 const axios = require('axios');
 const { createPersonal } = require('../ethereum/personal');
+const auth = require('../middleware/auth');
+const { request } = require('express');
 router.post('/create', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
         phonenumber: Joi.number().required(),
@@ -35,12 +37,12 @@ router.post('/create', asyncMiddle(async (req, res) => {
         houseNumber: Joi.number().required(),
         postCode: Joi.string().required(),
         subdomain: Joi.string().required(),
-        emailCode: Joi.string().required()
+        emailCode: Joi.string().required(),
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const password = req.body.password;
     const subdomain = req.body.subdomain.toLowerCase();
-    if(!schema.validate(password)) return res.status(400).send(result.error.details[0].message);
+    if(!schema.validate(password)) return res.status(400).send('Ongeldig wachtwoord');
     const email = await getEmailFromCode(req.body.emailCode);
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -56,7 +58,46 @@ router.post('/create', asyncMiddle(async (req, res) => {
             req.body.postCode,
             subdomain,
             address,
-            ethereumPassword
+            ethereumPassword,
+        );
+        const token = account.genereateAuthToken();
+        await finalizeSubdomain(subdomain);
+        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
+    }).catch(err => res.status(500).send(err.message))
+}));
+router.post('/create-seller', asyncMiddle(async (req, res) => {
+    const result = Joi.validate(req.body, {
+        phonenumber: Joi.number().required(),
+        password: Joi.string().required(),
+        tradeName: Joi.string().required(),
+        address: Joi.string().required(),
+        houseNumber: Joi.number().required(),
+        postCode: Joi.string().required(),
+        subdomain: Joi.string().required(),
+        emailCode: Joi.string().required(),
+        seller: Joi.string().required()
+    });
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    const password = req.body.password;
+    const subdomain = req.body.subdomain.toLowerCase();
+    if(!schema.validate(password)) return res.status(400).send('Ongeldig wachtwoord');
+    const email = await getEmailFromCode(req.body.emailCode);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const ethereumPassword = cryptoRandomString({ length: 256 });
+    createPersonal(ethereumPassword).then(async address => {
+        const account = await createSellsAccount(
+            email, 
+            req.body.phonenumber,
+            hashedPassword, 
+            req.body.tradeName, 
+            req.body.address,
+            req.body.houseNumber,
+            req.body.postCode,
+            subdomain,
+            address,
+            ethereumPassword,
+            req.body.seller
         );
         const token = account.genereateAuthToken();
         await finalizeSubdomain(subdomain);
@@ -84,7 +125,7 @@ router.post('/login', asyncMiddle(async (req, res) => {
         return res.status(400).send('Ongeldig e-mail of wachtwoord');
     }
     const token = account.genereateAuthToken()
-    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
+    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain', 'isNl']));
 }));
 router.post('/forgot', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -140,4 +181,30 @@ router.get('/info/:subdomain', asyncMiddle(async (req, res) => {
     const account = await findBySubdomain(req.params.subdomain);
     return res.send(_.pick(account, ['kvk', 'btw', 'address', 'phonenumber', 'houseNumber']));
 }));
+router.get('/transaction-fee', auth, asyncMiddle(async (req, res) => {
+    const account = await findById(req.user._id);
+    return res.send(_.pick(account, 'transactionFee'))
+}));
+router.post('/transaction-fee/:fee', auth, asyncMiddle(async (req, res) => {
+    const result = Joi.validate(req.params.fee, Joi.number().required());
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    await updateTransactionFee(req.user._id, req.params.fee);
+    return res.send();
+}));
+router.get('/transaction-fee-settings', auth, asyncMiddle(async (req, res) => {
+    const account = await findById(req.user._id);
+    return res.send(_.pick(account, ['isFiftyFifty', 'isChargeCustomer']))
+}));
+router.post('/update-fifty-fifty/:fiftyFifty', auth, asyncMiddle(async (req, res) => {
+    const result = Joi.validate(req.params.fiftyFifty, Joi.boolean().required());
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    await updateIsFiftyFifty(req.user._id, req.params.fiftyFifty);
+    return res.send();
+}))
+router.post('/update-charge-customer/:chargeCustomer', auth, asyncMiddle(async (req, res) => {
+    const result = Joi.validate(req.params.chargeCustomer, Joi.boolean().required());
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    await updateIsChargeCustomer(req.user._id, req.params.chargeCustomer);
+    return res.send();
+}))
 module.exports = router;

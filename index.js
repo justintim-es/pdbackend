@@ -44,7 +44,8 @@ app.use(function(req, res, next) {
 var whitelist = [
     'https://presale.discount', 
     'https://mollie.presale.discount',
-    'https://receipts.presale.discount'
+    'https://receipts.presale.discount',
+    'https://sell.presale.discount'
 ];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
@@ -54,7 +55,7 @@ const corsOptions = {
         } else {
           callback(new Error('Not allowed by CORS'))
         }
-      }
+    }
 };
 app.use(cors(corsOptions));
 const shops = require('./routs/shops');
@@ -77,6 +78,11 @@ const receipts = require('./routs/receipts');
 const mollieKeys = require('./routs/mollie-keys');
 const adyen = require('./routs/adyen');
 const ethereum = require('./routs/ethereum');
+const seller = require('./routs/seller');
+const sellPrice = require('./routs/sell-price');
+const sellEth = require('./routs/sell-eth');
+const psForgot = require('./routs/psforgot');
+
 app.use('/api/shops', shops);
 app.use('/api/mollie', mollie);
 app.use('/api/email', email);
@@ -97,7 +103,13 @@ app.use('/api/receipts', receipts);
 app.use('/api/mollie-keys', mollieKeys);
 app.use('/api/adyen', adyen);
 app.use('/api/ethereum', ethereum);
+app.use('/api/seller', seller);
+app.use('/api/sell-price', sellPrice);
+app.use('/api/sell-eth', sellEth);
+app.use('/api/psforgot', psForgot);
 app.use(error); 
+console.log(config.get('web3Connect'));
+
 console.log('token', jwt.sign({ admin: true }, config.get('jwtPrivateKey')));
 
 app.listen(5555, () => console.log('listening'));

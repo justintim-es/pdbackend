@@ -35,6 +35,8 @@ async function createPhonenumberConfirm(phonenumber, code) {
     await phonenumberConfirm.save();
 }
 async function createPhonenumberCustomerConfirm(phonenumber, code) {
+    const pcc = await PhonenumberCustomerConfirm.findOne({ phonenumber: phonenumber });
+    if(pcc != null) throw new Error('Telefoonnummer is al bezet of u kunt het over 20 minuten opnieuw proberen');
     const phonenumberCustomerConfirm = new PhonenumberCustomerConfirm({
         phonenumber: phonenumber,
         code: code,
@@ -44,6 +46,9 @@ async function createPhonenumberCustomerConfirm(phonenumber, code) {
     await phonenumberCustomerConfirm.save();
 }
 async function createPhonenumberSellerConfirm(phonenumber, code) {
+    const psc = await PhonenumberSellerConfirm.findOne({ phonenumber: phonenumber });
+    console.log(psc);
+    if(psc != null) throw new Error('Telefoonnummer is al bezet of u kunt het over 20 minuten opnieuw proberen');
     const phonenumberSellerConfirm = new PhonenumberSellerConfirm({
         phonenumber: phonenumber,
         code: code,
@@ -103,6 +108,12 @@ async function deleteOutdatedSeller() {
         }
     }
 }
+async function getCustomerConfirm(phonenumber) {
+    return await PhonenumberCustomerConfirm.findOne({ phonenumber: phonenumber });
+}
+async function getSellerPhonenumberConfirm(phonenumber) {
+    return await PhonenumberSellerConfirm.findOne({ phonenumber: phonenumber });
+}
 
 module.exports.createPhonenumberConfirm = createPhonenumberConfirm;
 module.exports.createPhonenumberCustomerConfirm = createPhonenumberCustomerConfirm;
@@ -113,3 +124,5 @@ module.exports.confirmSellerPhonenumber = confirmSellerPhonenumber;
 module.exports.deleteOutDated = deleteOutDated;
 module.exports.deleteOutDatedCustomer = deleteOutDatedCustomer;
 module.exports.deleteOutdatedSeller = deleteOutdatedSeller;
+module.exports.getCustomerConfirm = getCustomerConfirm;
+module.exports.getSellerPhonenumberConfirm = getSellerPhonenumberConfirm;

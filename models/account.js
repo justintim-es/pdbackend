@@ -56,8 +56,18 @@ const accountSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    sells: {
-        type: mongoose.Schema.Types.ObjectId,
+    sells: mongoose.Schema.Types.ObjectId,
+    transactionFee: {
+        type: Number,
+        required: true
+    },
+    isFiftyFifty: {
+        type: Boolean,
+        required: true
+    },
+    isChargeCustomer: {
+        type: Boolean,
+        required: true
     }
 })
 accountSchema.methods.genereateAuthToken = function() {
@@ -79,7 +89,10 @@ async function createAccount(email, phonenumber, password, tradeName, address, h
         ethereumAddress: ethereumAddress,
         ethereumPassword: ethereumPassword,
         isSells: false,
-        isSubdomain: false
+        isSubdomain: false,
+        transactionFee: 150,
+        isFiftyFifty: false,
+        isChargeCustomer: false,
     });
     await account.save();
     return account;
@@ -97,7 +110,11 @@ async function createSellsAccount(email, phonenumber, password, tradeName, addre
         ethereumAddress: ethereumAddress,
         ethereumPassword: ethereumPassword,
         isSells: true,
-        sells: sells
+        sells: sells,
+        isSubdomain: false,
+        transactionFee: 150,
+        isFiftyFifty: false,
+        isChargeCustomer: false
     });
     await account.save();
     return account;
@@ -129,10 +146,37 @@ async function updateEthereum(id) {
         }
     })
 }
+async function updateTransactionFee(id, transactionFee) {
+    await Account.updateOne({ _id: id }, {
+        $set: {
+            transactionFee: transactionFee
+        }
+    })
+}
+async function updateIsFiftyFifty(id, isFiftyFifty) {
+    await Account.updateOne({ _id: id }, {
+        $set: {
+            isFiftyFifty: isFiftyFifty,
+            isChargeCustomer: false
+        }
+    })
+}
+async function updateIsChargeCustomer(id, isChargeCustomer) {
+    await Account.updateOne({ _id: id }, {
+        $set: {
+            isChargeCustomer: isChargeCustomer,
+            isFiftyFifty: false
+        }
+    })
+}
 module.exports.createAccount = createAccount;
+module.exports.createSellsAccount = createSellsAccount;
 module.exports.findOne = findOne;
 module.exports.findBySubdomain = findBySubdomain;
 module.exports.findById = findById;
 module.exports.updatePassword = updatePassword;
 module.exports.getAccounts = getAccounts;
 module.exports.updateEthereum = updateEthereum;
+module.exports.updateTransactionFee = updateTransactionFee;
+module.exports.updateIsFiftyFifty = updateIsFiftyFifty;
+module.exports.updateIsChargeCustomer = updateIsChargeCustomer;

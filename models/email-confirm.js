@@ -94,7 +94,7 @@ async function deleteOutdated() {
 async function deleteOutdatedCustomer() {
     const emailCustomerConfirms = await EmailCustomerConfirm.find();
     for (var i = 0; i < emailCustomerConfirms.length; i++) {
-        if (new Date(emailCustomerConfirms[i].removeDate < new Date() && !emailCustomerConfirms[i].isConfirmed)) {
+        if (new Date(emailCustomerConfirms[i].removeDate) < new Date() && !emailCustomerConfirms[i].isConfirmed) {
             await EmailCustomerConfirm.deleteOne({ _id: emailCustomerConfirms[i]._id });
         }
     }
@@ -102,7 +102,7 @@ async function deleteOutdatedCustomer() {
 async function deleteOutdatedSeller() {
     const emailSellerConfirms = await EmailSellerConfirm.find();
     for(var i = 0; i < emailSellerConfirms.length; i++) {
-        if (new Date(emailSellerConfirms[i].removeDate < new Date() && !emailSellerConfirms[i].isConfirmed)) {
+        if (new Date(emailSellerConfirms[i].removeDate) < new Date() && !emailSellerConfirms[i].isConfirmed) {
             await EmailSellerConfirm.deleteOne({ _id: emailSellerConfirms[i]._id });
         }
     }
@@ -115,6 +115,10 @@ async function getCustomerEmailFromCode(code) {
     const emailConfirm = await EmailCustomerConfirm.findOne({ code: code });
     return emailConfirm.email;
 }
+async function getSellerEmailFromCode(code) {
+    const emailConfirm = await EmailSellerConfirm.findOne({ code: code });
+    return emailConfirm.email
+}
 module.exports.createEmailConfirm = createEmailConfirm;
 module.exports.createEmailCustomerConfirm = createEmailCustomerConfirm;
 module.exports.createEmailSellerConfirm = createEmailSellerConfirm;
@@ -126,3 +130,4 @@ module.exports.deleteOutdatedCustomer = deleteOutdatedCustomer;
 module.exports.deleteOutdatedSeller = deleteOutdatedSeller;
 module.exports.getEmailFromCode = getEmailFromCode; 
 module.exports.getCustomerEmailFromCode = getCustomerEmailFromCode;
+module.exports.getSellerEmailFromCode = getSellerEmailFromCode;

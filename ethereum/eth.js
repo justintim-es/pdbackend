@@ -19,6 +19,12 @@ const gasPrice = () => {
         web3.eth.getGasPrice().then(resolve).catch(reject);
     })
 }
+const getTransaction = (hash) => {
+    return new Promise((resolve, reject) => {
+        web3.eth.getTransaction(hash).then(resolve).catch(reject)
+    })
+}
 module.exports.balance = balance;
 module.exports.blockNumber = blockNumber;
 module.exports.gasPrice = gasPrice;
+module.exports.getTransaction = getTransaction;

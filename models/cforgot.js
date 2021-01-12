@@ -19,7 +19,6 @@ const cforgotSchema = new mongoose.Schema({
     }
 });
 const Cforgot = mongoose.model('Cforgot', cforgotSchema);
-
 async function createCforgot(code, customer) {
     const cf = await Cforgot.findOne({ customer: customer });
     if(cf != null) await Cforgot.deleteOne({ customer: customer });

@@ -1,10 +1,11 @@
 const config = require('config');
 var Web3 = require('web3');
 var web3 = new Web3(config.get('web3Connect'));
+// var web3 = new Web3('web3')
 const { price } = require('./etherscan');
 const { eur, dollar } = require('./exchangerates');
 const toWei = (eth) => {
-    return web3.utils.toWei(eth.toString());
+    return web3.utils.toWei(eth.toString().substring(0, 20));
 }
 const toEth = (wei) => {
     return web3.utils.fromWei(wei.toString());

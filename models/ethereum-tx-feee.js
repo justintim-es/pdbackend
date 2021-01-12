@@ -37,5 +37,15 @@ async function createEthereumTxFee(ethereumPayment, gasPrice, market, hash, wei)
 async function getEthereumTxFee(ethereumPayment) {
     return await EthereumTxFee.find({ ethereumPayment: ethereumPayment });
 }
+async function resendEthereumTxFee(hash, gasPrice, newHash, wei) {
+    await EthereumTxFee.updateOne({ has: hash }, {
+        $set: {
+            gasPrice: gasPrice,
+            hash: newHash,
+            wei: wei
+        }
+    })
+}
 module.exports.createEthereumTxFee = createEthereumTxFee;
 module.exports.getEthereumTxFee = getEthereumTxFee;
+module.exports.resendEthereumTxFee = resendEthereumTxFee;

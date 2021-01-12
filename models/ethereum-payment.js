@@ -61,12 +61,16 @@ const ethereumPaymentSchema = new mongoose.Schema({
     recievedMarket: {
         type: Number,
         required: true
-    }
-    
+    },
+    serviceFee: {
+        type: Number,
+        required: true
+    },
+    hash: String
 });
 const EthereumPayment = mongoose.model('EthereumPayment', ethereumPaymentSchema);
 
-async function createEthereumPayment(account, package, customer, address, password, requestWei, requestEth, requestEur, subdomain) {
+async function createEthereumPayment(account, package, customer, address, password, requestWei, requestEth, requestEur, subdomain, serviceFee) {
     const ethereumPayment = new EthereumPayment({
         account: account,
         package: package,
@@ -82,7 +86,8 @@ async function createEthereumPayment(account, package, customer, address, passwo
         subdomain: subdomain,
         date: new Date(),
         recievedWei: 0,
-        recievedMarket: 0
+        recievedMarket: 0,
+        serviceFee: serviceFee
     });
     await ethereumPayment.save();
     return ethereumPayment;
@@ -107,12 +112,13 @@ async function isBlockNumberEthereumPaymentTrue(id) {
         }
     })
 }
-async function payEthereumPayment(id, recievedWei, recievedMarket) {
+async function payEthereumPayment(id, recievedWei, recievedMarket, hash) {
     await EthereumPayment.updateOne({ _id: id }, {
         $set: {
             isPayed: true,
             recievedWei: recievedWei,
-            recievedMarket: recievedMarket
+            recievedMarket: recievedMarket,
+            hash: hash
         }
     })
 }
@@ -122,6 +128,17 @@ async function getEthereumPayments(package) {
 async function getEthereumPaymentsAccount(account) {
     return await EthereumPayment.find({ account: account, isPayed: true });
 }
+async function getEthereumPaymentHash(hash) {
+    return await EthereumPayment.findOne({ hash: hash });
+}
+async function resendEthereumPayment(hash, newHash, blockNumber) {
+    await EthereumPayment.updateOne({ hash: hash }, {
+        $set: {
+            hash: newHash,
+            blockNumber: blockNumber
+        }       
+    })
+}
 module.exports.createEthereumPayment = createEthereumPayment;
 module.exports.getEthereumPayment = getEthereumPayment;
 module.exports.payEthereumPayment = payEthereumPayment;
@@ -130,3 +147,5 @@ module.exports.isBlockNumberEthereumPaymentTrue = isBlockNumberEthereumPaymentTr
 module.exports.getEthereumPaymentById = getEthereumPaymentById;
 module.exports.getEthereumPayments = getEthereumPayments;
 module.exports.getEthereumPaymentsAccount = getEthereumPaymentsAccount;
+module.exports.getEthereumPaymentHash = getEthereumPaymentHash;
+module.exports.resendEthereumPayment = resendEthereumPayment;

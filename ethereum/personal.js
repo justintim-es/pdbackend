@@ -8,7 +8,7 @@ const { txGas } = require('./constants');
 var personal = new Personal(config.get('web3Connect'));
 const createPersonal = (password) => {
     return new Promise((resolve, reject) => {
-        web3.eth.personal.newAccount(password).then(resolve).catch(reject)
+        web3.eth.personal.newAccount(password).then(resolve).catch(err => { console.log(err); throw new Error(err);})
     })
 }
 const sendTransaction = (address, password, wei, reciever, gp) => {
@@ -32,5 +32,28 @@ const sendTransaction = (address, password, wei, reciever, gp) => {
         })
     })
 }
+const resendTransaction = (address, password, wei, reciever, gp, nonce) => {
+    return new Promise((resolve, reject) => {
+        web3.eth.personal.unlockAccount(address, password, 10).then(unlock => {
+            console.log(unlock);
+            if(unlock) {
+                web3.eth.sendTransaction({
+                    value: wei,
+                    from: address,
+                    to: reciever,
+                    gas: txGas,
+                    gasPrice: gp.toString(),
+                    nonce: nonce
+                }).on('transactionHash', resolve).catch(err => {
+                    throw new Error(err);
+                })
+            }
+            else throw new Error('Unable to unlock the account');
+        }).catch(err => {
+            throw new Error(err);
+        })
+    })
+}
 module.exports.createPersonal = createPersonal;
 module.exports.sendTransaction = sendTransaction;
+module.exports.resendTransaction = resendTransaction;

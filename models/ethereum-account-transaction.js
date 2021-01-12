@@ -8,7 +8,8 @@ const ethereumAccountTransactionSchema = new mongoose.Schema({
     },
     hash: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     market: {
         type: Number,
@@ -63,5 +64,16 @@ async function createEthereumAccountTransaction(account, hash, market, amountEur
 async function getEthereumAccountTransactions(account) {
     return await EthereumAccountTransaction.find({ account: account });
 }
+async function resendEthereumAccountTransaction(hash, gasFeeEur, gasFeeEth, gasFeeWei) {
+    await EthereumAccountTransaction.updateOne({ hash: hash }, {
+        $set: {
+            gasFeeEur: gasFeeEur,
+            gasFeeEth: gasFeeEth,
+            gasFeeWei: gasFeeWei,
+            date: new Date(),
+        }
+    });
+}
 module.exports.createEthereumAccountTransaction = createEthereumAccountTransaction;
 module.exports.getEthereumAccountTransactions = getEthereumAccountTransactions;
+module.exports.resendEthereumAccountTransaction = resendEthereumAccountTransaction;

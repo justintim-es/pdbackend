@@ -22,17 +22,15 @@ const testSchema = new mongoose.Schema({
     },
     reference: {
         type: String,
-        required: true
     }
 });
 const Test = mongoose.model('Test', testSchema);
-async function createTest(paymentData, random, amount, package, reference) {
+async function createTest(paymentData, random, amount, package) {
     const test = new Test({
         paymentData : paymentData,
         random: random,
         amount: amount,
         package: package,
-        reference: reference
     });
     await test.save();
 }
