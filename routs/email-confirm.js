@@ -62,7 +62,7 @@ router.post('/check-seller', asyncMiddle(async (req, res) => {
     await createEmailSellerConfirm(email, random)
     axios.post('https://presale.discount/email/confirm', {
         mail: req.body.email.toLowerCase(),
-        link: 'https://sell.presale.discount/confirm/' + random
+        link: 'https://sell.presale.discount/sell-eth/' + random
     }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
 }));
 

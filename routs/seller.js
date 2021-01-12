@@ -81,11 +81,10 @@ router.post('/forgot', asyncMiddle(async (req, res) => {
     const code = cryptoRandomString({ length: 256 });
     const seller = await getSellerEmail(email);
     await createSforgot(code, seller._id);
-    console.log(code);
-    // axios.post('https://presale.discount/email/reset', {
-    //     mail: email,
-    //     link: 'https://sell.presale.discount/reset/' + random 
-    // }).then(rs => res.send()).catch(err => res.status(500).send(err.message));
+    axios.post('https://presale.discount/email/reset', {
+        mail: email,
+        link: 'https://sell.presale.discount/reset/' + random 
+    }).then(rs => res.send()).catch(err => res.status(500).send(err.message));
     return res.send();
 }));
 router.post('/reset', asyncMiddle(async (req, res) => {
