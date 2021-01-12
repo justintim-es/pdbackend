@@ -14,12 +14,11 @@ router.post('/check-email', asyncMiddle(async (req, res) => {
     const email = req.body.email.toLowerCase().trim();
     await deleteOutdated();
     await createEmailConfirm(email, random);
-    // axios.post('https://presale.discount/email/confirm', {
-    //     mail: req.body.email.toLowerCase(),
-    //     link: req.body.seller ? 'http://presale.discount/confirm-sales/' + random :'https://presale.discount/confirm/' + random
-    // }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
-    console.log(random);
-    return res.send();
+    axios.post('https://presale.discount/email/confirm', {
+        mail: req.body.email.toLowerCase(),
+        link: 'https://presale.discount/confirm/' + random
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
+    
 }));
 router.post('/check-email-for-seller', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -31,9 +30,11 @@ router.post('/check-email-for-seller', asyncMiddle(async (req, res) => {
     const email = req.body.email.toLowerCase().trim();
     await deleteOutdated();
     await createEmailConfirm(email, random);
-    console.log(random);
-    return res.send() 
-}))
+    axios.post('https://presale.discount/email/confirm', {
+        mail: req.body.email.toLowerCase(),
+        link: 'https://presale.discount/confirm-sales/' + req.body.seller + '/' + random
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
+}));
 router.post('/check-customer', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
         email: Joi.string().required(),
@@ -45,12 +46,10 @@ router.post('/check-customer', asyncMiddle(async (req, res) => {
     const email = req.body.email.toLowerCase().trim();
     await deleteOutdatedCustomer();
     await createEmailCustomerConfirm(email, random);
-    // axios.post('https://presale.discount/email/confirm', {
-    //     mail: req.body.email.toLowerCase(),
-    //     link: 'https://' + req.body.subdomain.toLowerCase() + '.presale.discount/confirm/' + req.body.package + '/' + random
-    // }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
-    console.log(random);
-    return res.send();
+    axios.post('https://presale.discount/email/confirm', {
+        mail: req.body.email.toLowerCase(),
+        link: 'https://' + req.body.subdomain.toLowerCase() + '.presale.discount/confirm/' + req.body.package + '/' + random
+    }).then(resches => res.send()).catch(err => res.status(500).send(err.message))
 }));
 router.post('/check-seller', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
