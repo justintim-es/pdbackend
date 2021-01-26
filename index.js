@@ -43,19 +43,19 @@ app.use(function(req, res, next) {
 });
 var whitelist = [
     'https://presale.discount', 
-    'https://mollie.presale.discount',
+    'https://noscho.presale.discount',
     'https://receipts.presale.discount',
     'https://sell.presale.discount'
 ];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
-    // origin: function (origin, callback) {
-    //     if (whitelist.indexOf(origin) !== -1) {
-    //       callback(null, true)
-    //     } else {
-    //       callback(new Error('Not allowed by CORS'))
-    //     }
-    // }
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+    }
 };
 app.use(cors(corsOptions));
 const shops = require('./routs/shops');
@@ -116,7 +116,6 @@ app.use('/api/shop-contract-addresses', shopContractAddresses);
 app.use('/api/ethereum-contract', ethereumContract);
 app.use('/api/sell-receipts', sellReceipts);
 app.use(error); 
-console.log(config.get('web3Connect'));
 
 console.log('token', jwt.sign({ admin: true }, config.get('jwtPrivateKey')));
 
