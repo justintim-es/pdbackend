@@ -62,7 +62,7 @@ router.post('/create', asyncMiddle(async (req, res) => {
         );
         const token = account.genereateAuthToken();
         await finalizeSubdomain(subdomain);
-        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
+        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain', 'isContract', 'ethereumAddress']));
     }).catch(err => res.status(500).send(err.message))
 }));
 router.post('/create-seller', asyncMiddle(async (req, res) => {
@@ -101,7 +101,7 @@ router.post('/create-seller', asyncMiddle(async (req, res) => {
         );
         const token = account.genereateAuthToken();
         await finalizeSubdomain(subdomain);
-        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain']));
+        return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain', 'contract', 'ethereumAddress']));
     }).catch(err => res.status(500).send(err.message))
 }));
 
@@ -125,7 +125,7 @@ router.post('/login', asyncMiddle(async (req, res) => {
         return res.status(400).send('Ongeldig e-mail of wachtwoord');
     }
     const token = account.genereateAuthToken()
-    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain', 'isNl']));
+    return res.header('x-auth-token', token).send(_.pick(account, ['tradeName', 'isSubdomain', 'subdomain', 'contract', 'ethereumAddress']));
 }));
 router.post('/forgot', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {
@@ -206,5 +206,11 @@ router.post('/update-charge-customer/:chargeCustomer', auth, asyncMiddle(async (
     if(result.error) return res.status(400).send(result.error.details[0].message);
     await updateIsChargeCustomer(req.user._id, req.params.chargeCustomer);
     return res.send();
-}))
+}));
+router.get('/contract-status', auth, asyncMiddle(async (req, res) => {
+    const account = await findById(req.user._id);;
+    return res.send({
+        contract: account.contract
+    });
+}));
 module.exports = router;

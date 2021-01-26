@@ -62,6 +62,26 @@ const ethereumPaymentSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    recievedEth: {
+        type: Number,
+        required: true
+    },
+    recievedEur: {
+        type: Number,
+        required: true
+    },
+    transactionFeeEth: {
+        type: Number,
+        required: true
+    },
+    transactionFeeEur: {
+        type: Number,
+        required: true
+    },
+    transactionFeeWei: {
+        type: Number,
+        required: true
+    },
     serviceFee: {
         type: Number,
         required: true
@@ -86,6 +106,11 @@ async function createEthereumPayment(account, package, customer, address, passwo
         subdomain: subdomain,
         date: new Date(),
         recievedWei: 0,
+        recievedEth: 0,
+        recievedEur: 0,
+        transactionFeeEth: 0,
+        transactionFeeEur: 0,
+        transactionFeeWei: 0,
         recievedMarket: 0,
         serviceFee: serviceFee
     });
@@ -112,12 +137,17 @@ async function isBlockNumberEthereumPaymentTrue(id) {
         }
     })
 }
-async function payEthereumPayment(id, recievedWei, recievedMarket, hash) {
+async function payEthereumPayment(id, recievedWei, recievedEth, recievedEur, transactionFeeEth, transactionFeeWei, transactionFeeEur, recievedMarket, hash) {
     await EthereumPayment.updateOne({ _id: id }, {
         $set: {
             isPayed: true,
             recievedWei: recievedWei,
+            recievedEth: recievedEth,
+            recievedEur: recievedEur,
             recievedMarket: recievedMarket,
+            transactionFeeEth: transactionFeeEth,
+            transactionFeeEur: transactionFeeEur,
+            transactionFeeWei: transactionFeeWei,
             hash: hash
         }
     })
@@ -131,11 +161,15 @@ async function getEthereumPaymentsAccount(account) {
 async function getEthereumPaymentHash(hash) {
     return await EthereumPayment.findOne({ hash: hash });
 }
-async function resendEthereumPayment(hash, newHash, blockNumber) {
+async function resendEthereumPayment(hash, newHash, blockNumber, transactionFeeEth, transactionFeeEur, transactionFeeWei) {
     await EthereumPayment.updateOne({ hash: hash }, {
         $set: {
             hash: newHash,
-            blockNumber: blockNumber
+            blockNumber: blockNumber,
+            date: new Date(),
+            transactionFeeEth: transactionFeeEth,
+            transactionFeeEur: transactionFeeEur,
+            transactionFeeWei: transactionFeeWei
         }       
     })
 }

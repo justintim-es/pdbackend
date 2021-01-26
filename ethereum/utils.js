@@ -1,7 +1,6 @@
 const config = require('config');
 var Web3 = require('web3');
 var web3 = new Web3(config.get('web3Connect'));
-// var web3 = new Web3('web3')
 const { price } = require('./etherscan');
 const { eur, dollar } = require('./exchangerates');
 const toWei = (eth) => {
@@ -16,8 +15,12 @@ const ethToEur = (eth) => {
             const dollar = prischic.data.result.ethusd * eth;
             eur().then(escheur => {
                 resolve(escheur.data.rates.EUR * dollar);
-            }).catch(reject)
-        }).catch(reject)
+            }).catch(err => {
+                throw new Error(err);
+            })
+        }).catch(err => {
+            throw new Error(err);
+        })
     })
 }
 const eurToEth = (eur) => {

@@ -49,13 +49,13 @@ var whitelist = [
 ];
 const corsOptions = {
     exposedHeaders: 'x-auth-token',
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-          callback(null, true)
-        } else {
-          callback(new Error('Not allowed by CORS'))
-        }
-    }
+    // origin: function (origin, callback) {
+    //     if (whitelist.indexOf(origin) !== -1) {
+    //       callback(null, true)
+    //     } else {
+    //       callback(new Error('Not allowed by CORS'))
+    //     }
+    // }
 };
 app.use(cors(corsOptions));
 const shops = require('./routs/shops');
@@ -82,6 +82,10 @@ const seller = require('./routs/seller');
 const sellPrice = require('./routs/sell-price');
 const sellEth = require('./routs/sell-eth');
 const psForgot = require('./routs/psforgot');
+const shopContractHashes = require('./routs/shop-contract-hashes');
+const shopContractAddresses = require('./routs/shop-contract-addresses');
+const ethereumContract = require('./routs/ethereum-contract');
+const sellReceipts = require('./routs/sell-receipts');
 
 app.use('/api/shops', shops);
 app.use('/api/mollie', mollie);
@@ -107,6 +111,10 @@ app.use('/api/seller', seller);
 app.use('/api/sell-price', sellPrice);
 app.use('/api/sell-eth', sellEth);
 app.use('/api/psforgot', psForgot);
+app.use('/api/shop-contract-hashes', shopContractHashes);
+app.use('/api/shop-contract-addresses', shopContractAddresses);
+app.use('/api/ethereum-contract', ethereumContract);
+app.use('/api/sell-receipts', sellReceipts);
 app.use(error); 
 console.log(config.get('web3Connect'));
 

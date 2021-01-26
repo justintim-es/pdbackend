@@ -1,6 +1,6 @@
 const config = require('config');
 const apiKey = config.get('etherscanApiKey');
-const url = 'https://api.etherscan.io/api?module=stats&action=ethprice&apikey=' + apiKey;
+const url = 'https://api.etherscan.io/api?module=stats&action=ethprice&apikey=' + '5CEN81J488XEST13BZS3N67RI5N37X879V';
 const estimatedUrlStart = 'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice='; 
 const estimatedUrlEnd = '&apikey=' + apiKey;
 const axios = require('axios');

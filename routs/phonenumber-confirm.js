@@ -22,9 +22,11 @@ router.get('/check-phonenumber/:phonenumber', asyncMiddle(async (req, res) => {
     const code = cryptoRandomString({ length: 6 });
     await deleteOutDated();
     await createPhonenumberConfirm(req.params.phonenumber, code);
-    client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
-        return res.send();
-    }).catch(err => res.status(500).send(err.message));
+    // client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
+    //     return res.send();
+    // }).catch(err => res.status(500).send(err.message));
+    console.log(code);
+    return res.send();
 }));
 router.get('/check-customer/:phonenumber', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.params.phonenumber, Joi.string().required());
@@ -32,9 +34,11 @@ router.get('/check-customer/:phonenumber', asyncMiddle(async (req, res) => {
     const code = cryptoRandomString({ length: 6 });
     await deleteOutDatedCustomer();
     await createPhonenumberCustomerConfirm(req.params.phonenumber, code);
-    client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
-        return res.send();
-    }).catch(err => res.status(500).send(err.message));
+    // client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
+    //     return res.send();
+    // }).catch(err => res.status(500).send(err.message));
+    console.log(code);
+    return res.send();
 }));
 router.get('/check-seller/:phonenumber', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.params.phonenumber, Joi.string().required());
@@ -43,9 +47,11 @@ router.get('/check-seller/:phonenumber', asyncMiddle(async (req, res) => {
     console.log(code);
     await deleteOutdatedSeller()
     await createPhonenumberSellerConfirm(req.params.phonenumber, code);
-    client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
-        return res.send();
-    }).catch(err => res.status(500).send(err.message));
+    // client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
+    //     return res.send();
+    // }).catch(err => res.status(500).send(err.message));
+    console.log(code);
+    return res.send();
 }))
 router.post('/confirm-phonenumber', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.body, {

@@ -9,5 +9,5 @@ router.get('/payments/:package', async (req, res) => {
     const payments = await getPayments(req.params.package);
     const mapped = _.map(payments, payment => _.pick(payment, ['date', '_id']));
     return res.send(mapped.sort((a, b) => new Date(b.date) - new Date(a.date)))
-})
+});
 module.exports = router;

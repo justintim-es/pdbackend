@@ -68,6 +68,10 @@ const accountSchema = new mongoose.Schema({
     isChargeCustomer: {
         type: Boolean,
         required: true
+    },
+    contract: {
+        type: Number,
+        required: true
     }
 })
 accountSchema.methods.genereateAuthToken = function() {
@@ -90,9 +94,10 @@ async function createAccount(email, phonenumber, password, tradeName, address, h
         ethereumPassword: ethereumPassword,
         isSells: false,
         isSubdomain: false,
-        transactionFee: 150,
+        transactionFee: 100,
         isFiftyFifty: false,
         isChargeCustomer: false,
+        contract: 0
     });
     await account.save();
     return account;
@@ -112,9 +117,10 @@ async function createSellsAccount(email, phonenumber, password, tradeName, addre
         isSells: true,
         sells: sells,
         isSubdomain: false,
-        transactionFee: 150,
+        transactionFee: 100,
         isFiftyFifty: false,
-        isChargeCustomer: false
+        isChargeCustomer: false,
+        contract: 0
     });
     await account.save();
     return account;
@@ -169,6 +175,20 @@ async function updateIsChargeCustomer(id, isChargeCustomer) {
         }
     })
 }
+async function updateContractOne(id) {
+    await Account.updateOne({ _id: id }, {
+        $set: {
+            contract: 1
+        }
+    })
+}
+async function updateContractTwo(id) {
+    await Account.updateOne({ _id: id }, {
+        $set: {
+            contract: 2
+        }
+    })
+}
 module.exports.createAccount = createAccount;
 module.exports.createSellsAccount = createSellsAccount;
 module.exports.findOne = findOne;
@@ -180,3 +200,5 @@ module.exports.updateEthereum = updateEthereum;
 module.exports.updateTransactionFee = updateTransactionFee;
 module.exports.updateIsFiftyFifty = updateIsFiftyFifty;
 module.exports.updateIsChargeCustomer = updateIsChargeCustomer;
+module.exports.updateContractOne = updateContractOne;
+module.exports.updateContractTwo = updateContractTwo;

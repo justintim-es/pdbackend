@@ -37,32 +37,35 @@ router.post('/create', asyncMiddle(async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const confirm = await getCustomerConfirm(req.body.phonenumber);
     if(!confirm.isConfirmed) return res.status(400).send('Telefoonnummer is niet bevestigd');
-    const customer = await createCustomer(email, req.body.phonenumber, hashedPassword);
     const package = await getPackage(req.body.package);
     const account = await findById(package.account);
-    const token = customer.genereateAuthToken();
     dollar().then(async doschol => {
         price().then(async prischic => {
             const cryptoPass = cryptoRandomString({ length: 256 });
             createPersonal(cryptoPass).then(async address => {
-                const token = customer.genereateAuthToken();
                 if(account.isFiftyFifty) {
                     const fee = 3.5 / 2;
                     const price = parseInt(package.price) + parseFloat(fee); 
                     const doschollaschar = doschol.data.rates.USD * price;
                     const eth = doschollaschar / prischic.data.result.ethusd;
+                    const customer = await createCustomer(email, req.body.phonenumber, hashedPassword);
                     const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price, account.subdomain, fee);
+                    const token = customer.genereateAuthToken();
                     return res.header('x-auth-token', token).status(200).send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei', 'serviceFee']))
                 } else if(account.isChargeCustomer) {
                     const price = parseInt(package.price) + parseFloat(3.5);
                     const doschollaschar = doschol.data.rates.USD * price;
                     const eth = doschollaschar / prischic.data.result.ethusd;
+                    const customer = await createCustomer(email, req.body.phonenumber, hashedPassword);
                     const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price, account.subdomain, 3.5);
+                    const token = customer.genereateAuthToken();
                     return res.header('x-auth-token', token).status(200).send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei', 'serviceFee']))
                 } else {
                     const doschollaschar = doschol.data.rates.USD * package.price;
                     const eth =  doschollaschar / prischic.data.result.ethusd;
+                    const customer = await createCustomer(email, req.body.phonenumber, hashedPassword);
                     const ethereumPayment = await createEthereumPayment(account._id, package._id, customer._id, address, cryptoPass, toWei(eth), eth, package.price, account.subdomain, 0);
+                    const token = customer.genereateAuthToken();
                     return res.header('x-auth-token', token).status(200).send(_.pick(ethereumPayment, ['address', 'requestEur', 'requestEth', 'requestWei', 'serviceFee']));
                 }
             }).catch(err => res.status(500).send(err.message));

@@ -17,13 +17,17 @@ const auth = require('../middleware/auth');
 const { createEthereumAccountTransaction, getEthereumAccountTransactions, resendEthereumAccountTransaction } = require('../models/ethereum-account-transaction');
 const { createPaymentBalanceBridge } = require('../models/paymentbalancebridge');
 const { createEthereumTxFee, getEthereumTxFee, resendEthereumTxFee } = require('../models/ethereum-tx-feee');
-const { address, txGas } = require('../ethereum/constants');
+const { address, txGas, txFee } = require('../ethereum/constants');
 const { getById } = require('../models/customer');
 const cryptoRandomString = require('crypto-random-string');
 const { create } = require('lodash');
 const { getSellerId, updateSellerTxFee } = require('../models/seller');
 const { createSellReceipt, getSellReceipts } = require('../models/sell-receipt');
 const { createEthereumSellerTransaction, getEthereumSellerTransactions, updateEthereumSellerTransaction } = require('../models/ethereum-seller-transaction');
+const { payShopGas, payShop } = require('../contracts/shop');
+const { payShopSellerGas, payShopSeller } = require('../contracts/shop-seller');
+const { getShopContractAddressAccount } = require('../models/shop-contract-address');
+const { createEthereumContractTxFee } = require('../models/ethereum-contract-tx-fee');
 router.get('/balance/:address', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.params.address, Joi.string().required());
     if(result.error) return res.status(400).send(result.error.details[0].message);
@@ -87,15 +91,18 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
     blockNumber().then(async bn => {
         const confirmations = bn - ethereumPayment.blockNumber;
         if(confirmations >= 7 && !ethereumPayment.isPayed) {
+            console.log('stopmining');
             balance(ethereumPayment.address).then(async ethBalance => {
                 if(ethBalance == 0) return res.status(402).send('De ethereum transactie is teruggekeerd vanwege een "fork"');
                 if(ethBalance <= ethereumPayment.requestEth) return res.status(402).send('Verstuur meer ethereum naar het adres');
                 const package = await getPackage(ethereumPayment.package);
                 const account = await findById(ethereumPayment.account);
+                const contractAddress = await getShopContractAddressAccount(account._id);
+                const serviceFee = Math.round(contractAddress.serviceFee / 100);
                 price().then(prischic => {
                     const prischicesche = prischic.data.result.ethusd;
                     dollar().then(async doschol => {
-                        const doschollaschar = doschol.data.rates.USD * 1.99;
+                        const doschollaschar = doschol.data.rates.USD * 1.49;
                         const eschet = doschollaschar / prischicesche;
                         const feeWei = toWei(eschet.toString().substring(0, 20));
                         const doscholFee = doschol.data.rates.USD * 1;
@@ -110,38 +117,75 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                             const sellWei = toWei(sellEschet);
                             const seller = await getSellerId(account.sells);
                             console.log(seller);
-                            sendTransaction(ethereumPayment.address, ethereumPayment.password, sellWei, seller.ethereumAddress, gpFee).then(async sellHash => {
-                                await createEthereumTxFee(ethereumPayment._id, gpFee, prischicesche, sellHash, sellWei);
-                                await createSellReceipt(seller._id, sellHash, 0.10, sellWei, sellEschet);
-                                sendTransaction(ethereumPayment.address, ethereumPayment.password, feeWei, address, gpFee).then(async feeHash => {
-                                    const restWei = ethBalance - sellWei - feeWei - (gpFee * txGas * 2) - (gpAccountFee * txGas);
-                                    await createEthereumTxFee(ethereumPayment._id, gpFee, restWei, feeHash, feeWei);
-                                    sendTransaction(ethereumPayment.address, ethereumPayment.password, restWei, account.ethereumAddress, gpAccountFee).then(async finalHash => {
-                                        await createEthereumTxFee(ethereumPayment._id, gpAccountFee, prischicesche, finalHash, restWei);
-                                        await payEthereumPayment(ethereumPayment._id, restWei, prischicesche, finalHash);
-                                        const balance = await createBalance(package.pack, ethereumPayment.subdomain, package._id, ethereumPayment.customer);
-                                        await createPaymentBalanceBridge(ethereumPayment._id, balance._id);
-                                        await incSold(package._id);
-                                        return res.send({ confirmations: confirmations, balance: balance.balance });
+                            eurToEth(serviceFee).then(gaschasEschet => {
+                                eurToEth(0.40).then(mescheEschet => {
+                                    eurToEth(0.1).then(seschelEschet => {
+                                        const weiShop = ethBalance - toWei(mescheEschet) - toWei(gaschasEschet) - toWei(seschelEschet) - 300;
+                                        payShopSellerGas(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(mescheEschet), toWei(seschelEschet), weiShop, ethBalance - toWei(gaschasEschet)).then(gaschas => {
+                                            console.log('gg', gaschas);
+                                            const gasPrice = Math.round(toWei(gaschasEschet) / gaschas) -1;
+                                            payShopSeller(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(mescheEschet), toWei(seschelEschet), weiShop, ethBalance - toWei(gaschasEschet), gaschas, gasPrice).then(haschash => {
+                                                ethToEur(toEth(weiShop)).then(async escheur => {
+                                                    eur().then(async escheuroscho => {
+                                                        const market = escheuroscho.data.rates.EUR * prischicesche;
+                                                        await createSellReceipt(seller._id, haschash, 0.10, toWei(seschelEschet), seschelEschet, contractAddress._id);
+                                                        await payEthereumPayment(ethereumPayment._id, weiShop, toEth(weiShop), escheur, gaschasEschet, toWei(gaschasEschet), serviceFee, market, haschash);
+                                                        const balance = await createBalance(package.pack, ethereumPayment.subdomain, package._id,  ethereumPayment.customer);
+                                                        await createPaymentBalanceBridge(ethereumPayment._id, balance._id);
+                                                        await incSold(package._id);
+                                                        return res.send({ confirmations: confirmations, balance: balance.balance });
+                                                    })
+                                                })
+                                            })
+                                        })
                                     })
                                 })
                             })
                         } else {
-                            sendTransaction(ethereumPayment.address, ethereumPayment.password, feeWei, address, gpFee).then(async feeHash => {
-                                await createEthereumTxFee(ethereumPayment._id, gpFee, prischicesche, feeHash, feeWei);
-                                const restWei = ethBalance - feeWei - (gpFee * txGas) - (gpAccountFee * txGas); 
-                                sendTransaction(ethereumPayment.address, ethereumPayment.password, restWei, account.ethereumAddress, gpAccountFee).then(async hash => {
-                                    console.log('stopmining');
-                                    await createEthereumTxFee(ethereumPayment._id, gpAccountFee, prischicesche, hash, restWei);
-                                    await payEthereumPayment(ethereumPayment._id, restWei, prischicesche, hash);
-                                    const balance = await createBalance(package.pack, ethereumPayment.subdomain, package._id, ethereumPayment.customer);
-                                    await createPaymentBalanceBridge(ethereumPayment._id, balance._id);
-                                    await incSold(package._id); 
-                                    return res.send({ confirmations: confirmations, balance: balance.balance });
-                                }).catch(err => res.status(500).send(err.message));
-                            }).catch(err => {
-                                return res.status(500).send(err.message);
-                            });
+                                eurToEth(serviceFee).then(eschet => {
+                                    eurToEth(0.50).then(eschetMe => {
+                                        const weiShop = ethBalance - toWei(eschetMe) - toWei(eschet) - 300; 
+                                        console.log('value', ethBalance - toWei(eschet));
+                                        console.log('weishop', weiShop);
+                                        console.log('eschetme', toWei(eschetMe));
+                                        console.log('eschetmeandweishop', parseInt(weiShop) + parseInt(toWei(eschetMe)));
+                                        payShopGas(ethereumPayment.address, ethereumPayment.password, contractAddress.contractAddress, ethBalance - toWei(eschet), toWei(eschetMe), weiShop).then(gaschas => {
+                                            const gasPrice = Math.round(toWei(eschet) / gaschas) - 1;
+                                            console.log('gaschas', gaschas);
+                                            payShop(
+                                                ethereumPayment.address, 
+                                                ethereumPayment.password, 
+                                                contractAddress.contractAddress,
+                                                ethBalance - toWei(eschet),
+                                                toWei(eschetMe), 
+                                                weiShop,
+                                                gaschas,
+                                                gasPrice
+                                            ).then(async hash => {
+                                                eur().then(async escheur => {
+                                                    const market = escheur.data.rates.EUR * prischicesche;
+                                                    const recievedEur = market * toEth(weiShop);
+                                                    await createEthereumContractTxFee(ethereumPayment._id, txFee, eschet);
+                                                    await payEthereumPayment(
+                                                        ethereumPayment._id, 
+                                                        weiShop, 
+                                                        toEth(weiShop), 
+                                                        recievedEur, 
+                                                        eschet, 
+                                                        toWei(eschet),
+                                                        serviceFee, 
+                                                        market, 
+                                                        hash
+                                                    );
+                                                    const balance = await createBalance(package.pack, ethereumPayment.subdomain, package._id,  ethereumPayment.customer);
+                                                    await createPaymentBalanceBridge(ethereumPayment._id, balance._id);
+                                                    await incSold(package._id);
+                                                    return res.send({ confirmations: confirmations, balance: balance.balance });
+                                                })
+                                            })
+                                        })
+                                    })
+                                })
                         }
                     }).catch(err => res.status(500).send())
                 }).catch(err => res.status(500).send(err));
@@ -431,32 +475,6 @@ router.get('/payments-account-finished', auth, asyncMiddle(async (req, res) => {
     }
     return res.send(reschet);
 }));
-router.get('/earned-seller-pendings', auth, asyncMiddle(async (req, res) => {
-    const earneds = await getSellReceipts(req.user._id);
-    const pendings = [];
-    for(let i = 0; i < earneds.length; i++) {
-        await getTransaction(earneds[i].hash).then(traschan => {
-            if(traschan.blockNumber == null) pendings.push(earneds[i]);
-        })
-    }
-    const mapped = _.map(pendings, pending => _.pick(pending, ['hash', 'eur', 'wei', 'eth', 'date']))
-    return res.send(
-        mapped.sort((a, b) => new Date(b.date) - new Date(a.date))
-    );
-}));
-router.get('/earned-seller-finisheds', auth, asyncMiddle(async (req, res) => {
-    const earneds = await getSellReceipts(req.user._id);
-    const finisheds = [];
-    for(let i = 0; i < earneds.length; i++) {
-        await getTransaction(earneds[i].hash).then(traschan => {
-            if(traschan.blockNumber != null) finisheds.push(earneds[i]);
-        })
-    }
-    const mapped = _.map(finisheds, finished => _.pick(finished, ['hash', 'eur', 'wei', 'eth', 'date']))
-    return res.send(
-        mapped.sort((a, b) => new Date(b.date) - new Date(a.date))
-    );
-}));
 const paymentsAccount = (sorted, escheurRate, ethereumTxFees) => {
     const txFees = [];
     for(let e = 0; e < ethereumTxFees.length; e++) {
@@ -581,5 +599,9 @@ router.post('/resend-seller', auth, asyncMiddle(async (req, res) => {
             }
         })
     })
+}));
+router.get('/seller-address', auth, asyncMiddle(async (req, res) => {
+    const seller = await getSellerId(req.user._id);
+    return res.send(seller.ethereumAddress);
 }))
 module.exports = router;
