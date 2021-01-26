@@ -42,7 +42,7 @@ async function createSeller(email, phonenumber, password, ethereumAddress, ether
         password: password,
         ethereumAddress: ethereumAddress,
         ethereumPassword: ethereumPassword,
-        txFee: 150 
+        txFee: 100 
     });
     await seller.save();
     return seller;
