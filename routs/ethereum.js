@@ -118,7 +118,7 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                             const seller = await getSellerId(account.sells);
                             console.log(seller);
                             eurToEth(serviceFee).then(gaschasEschet => {
-                                eurToEth(0.40).then(mescheEschet => {
+                                eurToEth(0.39).then(mescheEschet => {
                                     eurToEth(0.1).then(seschelEschet => {
                                         const weiShop = ethBalance - toWei(mescheEschet) - toWei(gaschasEschet) - toWei(seschelEschet) - 300;
                                         payShopSellerGas(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(mescheEschet), toWei(seschelEschet), weiShop, ethBalance - toWei(gaschasEschet)).then(gaschas => {
@@ -143,12 +143,8 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                             })
                         } else {
                                 eurToEth(serviceFee).then(eschet => {
-                                    eurToEth(0.50).then(eschetMe => {
+                                    eurToEth(0.49).then(eschetMe => {
                                         const weiShop = ethBalance - toWei(eschetMe) - toWei(eschet) - 300; 
-                                        console.log('value', ethBalance - toWei(eschet));
-                                        console.log('weishop', weiShop);
-                                        console.log('eschetme', toWei(eschetMe));
-                                        console.log('eschetmeandweishop', parseInt(weiShop) + parseInt(toWei(eschetMe)));
                                         payShopGas(ethereumPayment.address, ethereumPayment.password, contractAddress.contractAddress, ethBalance - toWei(eschet), toWei(eschetMe), weiShop).then(gaschas => {
                                             const gasPrice = Math.round(toWei(eschet) / gaschas) - 1;
                                             console.log('gaschas', gaschas);
