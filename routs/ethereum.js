@@ -36,8 +36,6 @@ router.get('/balance/:address', asyncMiddle(async (req, res) => {
     balance(address).then(async baschal => {
         const eschet = toEth(baschal);
         ethToEur(eschet).then(async escheur => {
-            console.log(baschal);
-            console.log(ethereumPayment.requestWei);
             if(parseInt(baschal) >= parseInt(ethereumPayment.requestWei) && !ethereumPayment.isBlockNumber) {
                 blockNumber().then(async bn => {
                     await blockNumberEthereumPayment(ethereumPayment._id, bn);
@@ -91,7 +89,6 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
     blockNumber().then(async bn => {
         const confirmations = bn - ethereumPayment.blockNumber;
         if(confirmations >= 7 && !ethereumPayment.isPayed) {
-            console.log('stopmining');
             balance(ethereumPayment.address).then(async ethBalance => {
                 if(ethBalance == 0) return res.status(402).send('De ethereum transactie is teruggekeerd vanwege een "fork"');
                 if(ethBalance <= ethereumPayment.requestEth) return res.status(402).send('Verstuur meer ethereum naar het adres');
@@ -122,7 +119,6 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                                     eurToEth(0.1).then(seschelEschet => {
                                         const weiShop = ethBalance - toWei(mescheEschet) - toWei(gaschasEschet) - toWei(seschelEschet) - 300;
                                         payShopSellerGas(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(mescheEschet), toWei(seschelEschet), weiShop, ethBalance - toWei(gaschasEschet)).then(gaschas => {
-                                            console.log('gg', gaschas);
                                             const gasPrice = Math.round(toWei(gaschasEschet) / gaschas) -1;
                                             payShopSeller(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(mescheEschet), toWei(seschelEschet), weiShop, ethBalance - toWei(gaschasEschet), gaschas, gasPrice).then(haschash => {
                                                 ethToEur(toEth(weiShop)).then(async escheur => {
@@ -147,7 +143,6 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                                         const weiShop = ethBalance - toWei(eschetMe) - toWei(eschet) - 300; 
                                         payShopGas(ethereumPayment.address, ethereumPayment.password, contractAddress.contractAddress, ethBalance - toWei(eschet), toWei(eschetMe), weiShop).then(gaschas => {
                                             const gasPrice = Math.round(toWei(eschet) / gaschas) - 1;
-                                            console.log('gaschas', gaschas);
                                             payShop(
                                                 ethereumPayment.address, 
                                                 ethereumPayment.password, 
