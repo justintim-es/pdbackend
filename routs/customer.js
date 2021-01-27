@@ -216,6 +216,7 @@ router.post('/receipts', asyncMiddle(async (req, res) => {
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const email = req.body.email.toLowerCase().trim();
     const customer = await getCustomerEmail(email);
+    const lock = await getLock(email);
     if(lock != null && lock.attempts > 3 && lock.date > new Date()) return res.status(400).send('Deze e-mail is op slot voor 30 minuten'); 
     if(customer == null)  {
         await createLock(email);
