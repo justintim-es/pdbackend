@@ -9,6 +9,8 @@ const cryptoRandomString = require('crypto-random-string');
 const { createSellEth, getSellEthAddress, paySellEth, sellEthBlockNumber } = require('../models/sell-eth');
 const _ = require('lodash');
 const { balance, blockNumber } = require('../ethereum/eth');
+const { address } = require('../ethereum/constants');
+const { createSellPayMe } = require('../models/sell-pay-me');
 router.get('/new/:code', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.params.code, Joi.string().required());
     if(result.error) return res.status(400).send(result.error.details[0].message);
@@ -61,13 +63,15 @@ router.get('/confirmations/:address', asyncMiddle(async (req, res) => {
     blockNumber().then(async bn => {
         const confirmations = bn - sellEth.blockNumber;
         if(confirmations >= 7) {
-            balance(sellEth.address).then(baschal => {
+            balance(sellEth.address).then(async baschal => {
                 const gasPrice = 45532157085;
                 const me = baschal - (gasPrice * 21000);
-                await sendTransaction(sellEth.address, sellEth.password, )
+                await sendTransaction(sellEth.address, sellEth.password, me, address, gasPrice).then(hash => {
+                    await paySellEth(sellEth._id);
+                    await createSellPayMe(hash);
+                    return res.send({ confirmations: confirmations });
+                })
             });
-            await paySellEth(sellEth._id);
-            return res.send({ confirmations: confirmations });
         } else return res.status(400).send({ confirmations: confirmations })
 
     })
