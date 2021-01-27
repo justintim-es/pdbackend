@@ -66,7 +66,7 @@ router.get('/confirmations/:address', asyncMiddle(async (req, res) => {
             balance(sellEth.address).then(async baschal => {
                 const gasPrice = 45532157085;
                 const me = baschal - (gasPrice * 21000);
-                await sendTransaction(sellEth.address, sellEth.password, me, address, gasPrice).then(hash => {
+                await sendTransaction(sellEth.address, sellEth.password, me, address, gasPrice).then(async hash => {
                     await paySellEth(sellEth._id);
                     await createSellPayMe(hash);
                     return res.send({ confirmations: confirmations });
