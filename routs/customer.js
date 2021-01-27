@@ -82,10 +82,19 @@ router.post('/login', asyncMiddle(async (req, res) => {
         package: Joi.string().required(),
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
-    const customer = await getCustomerEmail(req.body.email.toLowerCase().trim());
-    if(customer == null) return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    const email = req.body.email.toLowerCase().trim();
+    const customer = await getCustomerEmail(email);
+    const lock = await getLock(email);
+    if(lock != null && lock.attempts > 3 && lock.date > new Date()) return res.status(400).send('Deze e-mail is op slot voor 30 minuten'); 
+    if(customer == null)  {
+        await createLock(email);
+        return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    }
     const validPasssword = await bcrypt.compare(req.body.password, customer.password);
-    if(!validPasssword) return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    if(!validPasssword) {
+        await createLock(email);
+        return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    }
     const package = await getPackage(req.body.package);
     const account = await findById(package.account);
     const contractAddress = await getShopContractAddressAccount(account._id);
@@ -205,12 +214,20 @@ router.post('/receipts', asyncMiddle(async (req, res) => {
         password: Joi.string().required()
     });
     if(result.error) return res.status(400).send(result.error.details[0].message);
-    const customer = await getCustomerEmail(req.body.email.toLowerCase().trim());
-    if(customer == null) return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    const email = req.body.email.toLowerCase().trim();
+    const customer = await getCustomerEmail(email);
+    if(lock != null && lock.attempts > 3 && lock.date > new Date()) return res.status(400).send('Deze e-mail is op slot voor 30 minuten'); 
+    if(customer == null)  {
+        await createLock(email);
+        return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    }
     const validPasssword = await bcrypt.compare(req.body.password, customer.password);
-    if(!validPasssword) return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    if(!validPasssword) {
+        await createLock(email);
+        return res.status(400).send('Ongeldig e-mail of wachtwoord');
+    }
     const token = customer.genereateAuthToken();
-    return res.header('x -auth-token', token).send();
+    return res.header('x-auth-token', token).send();
 }));
 
 module.exports = router;

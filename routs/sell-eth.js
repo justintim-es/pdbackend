@@ -4,7 +4,7 @@ const asyncMiddle = require('../middleware/async');
 const Joi = require('joi');
 const { count } = require('../models/seller');
 const { eurToEth, toWei, ethToEur, toEth, isAddress } = require('../ethereum/utils');
-const { createPersonal } = require('../ethereum/personal');
+const { createPersonal, sendTransaction } = require('../ethereum/personal');
 const cryptoRandomString = require('crypto-random-string');
 const { createSellEth, getSellEthAddress, paySellEth, sellEthBlockNumber } = require('../models/sell-eth');
 const _ = require('lodash');
@@ -61,6 +61,11 @@ router.get('/confirmations/:address', asyncMiddle(async (req, res) => {
     blockNumber().then(async bn => {
         const confirmations = bn - sellEth.blockNumber;
         if(confirmations >= 7) {
+            balance(sellEth.address).then(baschal => {
+                const gasPrice = 45532157085;
+                const me = baschal - (gasPrice * 21000);
+                await sendTransaction(sellEth.address, sellEth.password, )
+            });
             await paySellEth(sellEth._id);
             return res.send({ confirmations: confirmations });
         } else return res.status(400).send({ confirmations: confirmations })
