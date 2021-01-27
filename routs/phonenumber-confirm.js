@@ -40,7 +40,6 @@ router.get('/check-seller/:phonenumber', asyncMiddle(async (req, res) => {
     const result = Joi.validate(req.params.phonenumber, Joi.string().required());
     if(result.error) return res.status(400).send(result.error.details[0].message);
     const code = cryptoRandomString({ length: 6 });
-    console.log(code);
     await deleteOutdatedSeller()
     await createPhonenumberSellerConfirm(req.params.phonenumber, code);
     client.messages.create({ body: 'presale.discount verificatie code: ' + code, from: '+3197010257295', to: '+31' + req.params.phonenumber}).then(sid => {
