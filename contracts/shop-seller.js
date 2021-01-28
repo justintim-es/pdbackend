@@ -40,7 +40,7 @@ const deployShopSeller = (from, password, seller, gas, gasPrice) => {
                 })
             } else throw new Error('Could not unlock account');
         }).catch(err => {
-            throw new Error(err);
+            throw new Error(err.message);
         })
     })
 }
@@ -57,11 +57,11 @@ const redeployShopSeller = (from, password, seller, gas, gasPrice, nonce) => {
                     gasPrice: gasPrice,
                     nonce: nonce
                 }).on('transactionHash', resolve).catch(err => {
-                    throw new Error(err);
+                    throw new Error(err.message);
                 })
             } else throw new Error('Could not unlock account');
         }).catch(err => {
-            throw new Error(err);
+            throw new Error(err.message);
         })
     })
 }
@@ -98,7 +98,7 @@ const payShopSellerGas = (ashop, from, password, wme, wseller, wshop, value) => 
                     from: from,
                     value: web3.utils.toBN(value)
                 }).then(resolve).catch(err => {
-                    throw new Error(err);
+                    throw new Error(err.message);
                 })
             } else throw new Error('Could not unlock account')
         })
@@ -137,7 +137,7 @@ const repayShopSeller = (ashop, from, password, wme, wseller, wshop, value, gas,
                     gasPrice: gasPrice,
                     nonce: nonce
                 }).on('transactionHash', resolve).catch(err => {
-                    throw new Error(err);
+                    throw new Error(err.message);
                 })
             } else throw new Error('could not unlock account')
         })
