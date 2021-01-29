@@ -271,9 +271,9 @@ router.post('/transfer-all-account/:address', auth, asyncMiddle(async (req, res)
     const transactionFeeEur = account.transactionFee / 100;
     eurToEth(transactionFeeEur).then(eschet => {
         const wei = toWei(eschet);
-        const gp = Math.round(wei / txGas) - 2;
+        const gp = Math.round(wei / txGas) - 1;
         balance(account.ethereumAddress).then(baschal => {
-            const txValue = baschal - (gp * txGas);
+            const txValue = baschal - wei;
             sendTransaction(account.ethereumAddress, account.ethereumPassword, txValue, req.params.address, gp).then(hash => {
                 price().then(prischic => {
                     eur().then(escheur => {
