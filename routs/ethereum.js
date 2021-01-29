@@ -141,15 +141,16 @@ router.get('/confirmations/:id', asyncMiddle(async (req, res) => {
                                 eurToEth(serviceFee).then(eschet => {
                                     eurToEth(0.49).then(eschetMe => {
                                         const weiShop = ethBalance - toWei(eschetMe) - toWei(eschet) - 300; 
-                                        payShopGas(ethereumPayment.address, ethereumPayment.password, contractAddress.contractAddress, ethBalance - toWei(eschet), toWei(eschetMe), weiShop).then(gaschas => {
+                                        const wescheiMesche = toWei(eschetMe);
+                                        const mesche = wescheiMesche.substring(0, wescheiMesche.length - 13);
+                                        payShopGas(ethereumPayment.address, ethereumPayment.password, contractAddress.contractAddress, ethBalance - toWei(eschet), mesche).then(gaschas => {
                                             const gasPrice = Math.round(toWei(eschet) / gaschas) - 1;
                                             payShop(
                                                 ethereumPayment.address, 
                                                 ethereumPayment.password, 
                                                 contractAddress.contractAddress,
                                                 ethBalance - toWei(eschet),
-                                                toWei(eschetMe), 
-                                                weiShop,
+                                                mesche, 
                                                 gaschas,
                                                 gasPrice
                                             ).then(async hash => {
@@ -270,7 +271,7 @@ router.post('/transfer-all-account/:address', auth, asyncMiddle(async (req, res)
     const transactionFeeEur = account.transactionFee / 100;
     eurToEth(transactionFeeEur).then(eschet => {
         const wei = toWei(eschet);
-        const gp = Math.round(wei / txGas);
+        const gp = Math.round(wei / txGas) - 1;
         balance(account.ethereumAddress).then(baschal => {
             const txValue = baschal - (gp * txGas);
             sendTransaction(account.ethereumAddress, account.ethereumPassword, txValue, req.params.address, gp).then(hash => {

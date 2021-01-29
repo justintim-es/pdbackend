@@ -183,7 +183,7 @@ router.post('/re-pay-shop', auth, asyncMiddle(async (req, res) => {
                                     repayShopSeller(contractAddress.contractAddress, ethereumPayment.address, ethereumPayment.password, toWei(eschetMe), toWei(eschetSeschel), weiShop, baschal - toWei(eschet), gaschas, gasPrice, traschan.nonce).then(async newHash => {
                                         await resendEthereumPayment(ethereumPayment.hash, newHash, bloschock, eschet, newTxFee, toWei(eschet));
                                         return res.send();
-                                    })
+                                    }).catch(err => res.status(500).send(err.message))
                                 })
                             })
                         }

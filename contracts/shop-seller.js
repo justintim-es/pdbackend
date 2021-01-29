@@ -136,9 +136,7 @@ const repayShopSeller = (ashop, from, password, wme, wseller, wshop, value, gas,
                     gas: gas,
                     gasPrice: gasPrice,
                     nonce: nonce
-                }).on('transactionHash', resolve).catch(err => {
-                    throw new Error(err.message);
-                })
+                }).on('transactionHash', resolve).catch(reject)
             } else throw new Error('could not unlock account')
         })
     })
